@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 # Set project name and version
-project(SFMLBoilerplate VERSION 0.1)
+project(SFMLCircle VERSION 0.1)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 11)
@@ -27,17 +27,17 @@ find_package(SFML 2.5
   )
 
 # Compile executable
-add_executable(SFMLBoilerplate main.cpp)
+add_executable(SFMLCircle main.cpp)
 
 # Set include directory search paths
-target_include_directories(SFMLBoilerplate 
+target_include_directories(SFMLCircle 
   PRIVATE
   "${PROJECT_BINARY_DIR}"
   )
 
 # Link executable to required SFML libraries
-target_link_libraries(SFMLBoilerplate sfml-graphics)
+target_link_libraries(SFMLCircle sfml-graphics)
 
 # Install target
-install(TARGETS SFMLBoilerplate DESTINATION bin)
+install(TARGETS SFMLCircle DESTINATION bin)
 

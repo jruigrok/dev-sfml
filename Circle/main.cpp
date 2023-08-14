@@ -10,7 +10,10 @@ int main(int argc, char* argv[]) {
          << PROJECT_VERSION_MINOR << std::endl;
 	
     // Create a window
-    sf::Window window(sf::VideoMode(800, 600), "SFML Boilerplate");
+    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+    sf::CircleShape shape(100.f);
+    shape.setFillColor(sf::Color::Green);
+
 
     // Handle closing the window
     while(window.isOpen()) {
@@ -23,6 +26,8 @@ int main(int argc, char* argv[]) {
                     window.close();
             }
         }
+        window.clear();
+        window.draw(shape);
         window.display();
     }
     
