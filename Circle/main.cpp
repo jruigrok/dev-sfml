@@ -1,7 +1,9 @@
 #include "config.h"
 #include <SFML/Window/Keyboard.hpp>
 #include <iostream>
+#include <vector>
 #include <SFML/Graphics.hpp>
+#include <Physics.hpp>
 
 int main(int argc, char* argv[]) {
     
@@ -10,10 +12,17 @@ int main(int argc, char* argv[]) {
          << PROJECT_VERSION_MINOR << std::endl;
 	
     // Create a window
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+    sf::RenderWindow window(sf::VideoMode(500, 500), "SFML works!");
+    //sf::CircleShape shape(r);
+    //shape.setPosition(pos);
+    //shape.setFillColor(sf::Color::Green);
+    std::vector<circleDef> circles(10);
 
+    //for (auto& c : circles)
+    for(auto i = 0; i < circles.size(); i++)
+    {
+        circles[i].setPos(i * 30, i * 30);
+    }
 
     // Handle closing the window
     while(window.isOpen()) {
@@ -27,7 +36,9 @@ int main(int argc, char* argv[]) {
             }
         }
         window.clear();
-        window.draw(shape);
+        for (auto& c : circles) {
+            window.draw(c.circle);
+        }
         window.display();
     }
     
