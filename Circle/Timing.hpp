@@ -41,16 +41,17 @@ public:
 	{
 		while (true)
 		{
-			std::unique_lock<std::mutex> lk;
-
 			std::this_thread::sleep_for(1000ms);
-			if (exit_)
 			{
-				return;
+				std::unique_lock<std::mutex> lk;
+				if (exit_)
+				{
+					return;
+				}
+				tickCountLast_ = tickCount_;
+				cout << "fps: " << tickCount_ << endl;
+				tickCount_ = 0;
 			}
-			tickCountLast_ = tickCount_;
-			cout << "fps: " << tickCount_ << endl;
-			tickCount_ = 0;
 		}
 	}
 

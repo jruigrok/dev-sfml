@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
     // Create a window
     sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "SFML works!");
     // Set frame limit
-    window.setFramerateLimit(frameLimit);
+    //window.setFramerateLimit(frameLimit);
     
 
     sf::Font font;
@@ -54,7 +54,12 @@ int main(int argc, char* argv[]) {
         for (int i = 0; i < l; i++) {
             window.draw(circles[i].circle);
         }
-        //circles[0].setPos(x,y);
+        sf::Vector2i mouse = sf::Mouse::getPosition(window);
+        if (mouse.x >= cellSize && mouse.x <= screenWidth - cellSize * 2 && mouse.y >= cellSize && mouse.y <= screenHeight - cellSize * 2) {
+            circles[0].setPos((sf::Vector2f)mouse);
+        }
+        fillGrid();
+        searchGrid();
         text.setString(timing.getCountString());
         window.draw(text);
         window.display();
