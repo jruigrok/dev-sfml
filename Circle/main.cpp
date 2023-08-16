@@ -1,29 +1,41 @@
 #include "config.h"
 #include <SFML/Window/Keyboard.hpp>
 #include <iostream>
-#include <vector>
-#include <SFML/Graphics.hpp>
-#include <Physics.hpp>
+#include <Timing.hpp>
+#include <Setup.hpp>
+
 
 int main(int argc, char* argv[]) {
-    
+    const int screenWidth = width * cellSize;
+    const int screenHeight = height * cellSize;
+    const int frameLimit = 165;
+
     // Output project version
     std::cout << "Version: " << PROJECT_VERSION_MAJOR << "."
          << PROJECT_VERSION_MINOR << std::endl;
 	
+    Timing timing;
     // Create a window
-    sf::RenderWindow window(sf::VideoMode(500, 500), "SFML works!");
-    //sf::CircleShape shape(r);
-    //shape.setPosition(pos);
-    //shape.setFillColor(sf::Color::Green);
-    std::vector<circleDef> circles(10);
+    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "SFML works!");
+    // Set frame limit
+    window.setFramerateLimit(frameLimit);
+    
 
-    //for (auto& c : circles)
-    for(auto i = 0; i < circles.size(); i++)
-    {
-        circles[i].setPos(i * 30, i * 30);
-    }
+    sf::Font font;
+    font.loadFromFile("Fonts/arial.ttf");
+    // Create a text
+    sf::Text text("hello", font);
+    text.setCharacterSize(30);
+    text.setStyle(sf::Text::Bold);
+    text.setFillColor(sf::Color::Red);
 
+
+    sf::Color red(255, 0, 0, 255);
+    Circle c1(109, 109, red);
+
+    circles.push_back(c1);
+    fillGrid();
+    
     // Handle closing the window
     while(window.isOpen()) {
         sf::Event Event;
@@ -31,14 +43,20 @@ int main(int argc, char* argv[]) {
             if (Event.type == sf::Event::Closed)
                 window.close();
             if (Event.type == sf::Event::KeyPressed) {
-                if (Event.key.code == sf::Keyboard::Escape)
+                if (Event.key.code == sf::Keyboard::Escape) {
                     window.close();
+                }
             }
         }
+        timing.tick();
         window.clear();
-        for (auto& c : circles) {
-            window.draw(c.circle);
+        int l = circles.size();
+        for (int i = 0; i < l; i++) {
+            window.draw(circles[i].circle);
         }
+        //circles[0].setPos(x,y);
+        text.setString(timing.getCountString());
+        window.draw(text);
         window.display();
     }
     
