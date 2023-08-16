@@ -9,6 +9,7 @@ int main(int argc, char* argv[]) {
     const int screenWidth = width * cellSize;
     const int screenHeight = height * cellSize;
     const int frameLimit = 165;
+    sf::Vector2i mouse;
 
     // Output project version
     std::cout << "Version: " << PROJECT_VERSION_MAJOR << "."
@@ -18,12 +19,12 @@ int main(int argc, char* argv[]) {
     // Create a window
     sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "SFML works!");
     // Set frame limit
-    //window.setFramerateLimit(frameLimit);
+    window.setFramerateLimit(frameLimit);
     
-
+    
     sf::Font font;
     font.loadFromFile("Fonts/arial.ttf");
-    // Create a text
+    // Creae a text
     sf::Text text("hello", font);
     text.setCharacterSize(30);
     text.setStyle(sf::Text::Bold);
@@ -31,9 +32,16 @@ int main(int argc, char* argv[]) {
 
 
     sf::Color red(255, 0, 0, 255);
-    Circle c1(109, 109, red);
-
+    Circle c1(200, 100, red);
     circles.push_back(c1);
+    for (int i = 0; i < 100; i++) {
+        c1.setPos(sf::Vector2f(100 + i, 100 + i));
+        circles.push_back(c1);
+    }
+    
+    
+
+    
     fillGrid();
     
     // Handle closing the window
@@ -54,12 +62,16 @@ int main(int argc, char* argv[]) {
         for (int i = 0; i < l; i++) {
             window.draw(circles[i].circle);
         }
-        sf::Vector2i mouse = sf::Mouse::getPosition(window);
-        if (mouse.x >= cellSize && mouse.x <= screenWidth - cellSize * 2 && mouse.y >= cellSize && mouse.y <= screenHeight - cellSize * 2) {
+        /*mouse = sf::Mouse::getPosition(window);
+        if (mouse.x >= cellSize && mouse.x <= screenWidth - cellSize && mouse.y >= cellSize && mouse.y <= screenHeight - cellSize) {
             circles[0].setPos((sf::Vector2f)mouse);
+        }*/
+        for (int i = 0; i < subSteps; i++) {
+            update(dt);
+            fillGrid();
+            searchGrid();
         }
-        fillGrid();
-        searchGrid();
+        
         text.setString(timing.getCountString());
         window.draw(text);
         window.display();
