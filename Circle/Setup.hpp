@@ -25,11 +25,10 @@ struct Circle {
 	sf::Vector2f drawPos;
 	sf::Color color;
 	
-	Circle() {};
-	Circle(float x, float y, sf::Color c) 
+	Circle(float x, float y, float vx,float vy, sf::Color c) 
 		:
 		pos(x, y), 
-		oldPos(x, y), 
+		oldPos(x-vx, y-vy), 
 		circle(radius, pointCount), 
 		color(c.r, c.g, c.b, c.a)
 	{
@@ -68,8 +67,8 @@ void fillGrid() {
 	int x;
 	int y;
 	for (int i = 0; i < l; i++) {
-		x = floorf(circles[i].pos.x / cellSize);
-		y = floorf(circles[i].pos.y / cellSize);
+		x = (int)floorf(circles[i].pos.x / cellSize);
+		y = (int)floorf(circles[i].pos.y / cellSize);
 		grid[x][y][gridL[x][y]] = i;
 		gridL[x][y]++;
 	}

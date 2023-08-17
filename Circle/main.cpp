@@ -8,7 +8,7 @@
 int main(int argc, char* argv[]) {
     const int screenWidth = width * cellSize;
     const int screenHeight = height * cellSize;
-    const int frameLimit = 165;
+    const int frameLimit = 60;
     sf::Vector2i mouse;
 
     // Output project version
@@ -30,17 +30,13 @@ int main(int argc, char* argv[]) {
     text.setStyle(sf::Text::Bold);
     text.setFillColor(sf::Color::Red);
 
-
     sf::Color red(255, 0, 0, 255);
-    Circle c1(200, 100, red);
-    circles.push_back(c1);
+    Circle c1(200, 100, 1, 0,red);
+    /*circles.push_back(c1);
     for (int i = 0; i < 100; i++) {
         c1.setPos(sf::Vector2f(100 + i, 100 + i));
         circles.push_back(c1);
-    }
-    
-    
-
+    }*/
     
     fillGrid();
     
@@ -54,13 +50,19 @@ int main(int argc, char* argv[]) {
                 if (Event.key.code == sf::Keyboard::Escape) {
                     window.close();
                 }
+                if (Event.key.code == sf::Keyboard::Return) {
+                    circles.push_back(c1);
+                }
+                if (Event.key.code == sf::Keyboard::Q) {
+                    cout << "objs: " << circles.size() << endl;
+                }
             }
         }
         timing.tick();
         window.clear();
         int l = circles.size();
         for (int i = 0; i < l; i++) {
-            window.draw(circles[i].circle);
+            //window.draw(circles[i].circle);
         }
         /*mouse = sf::Mouse::getPosition(window);
         if (mouse.x >= cellSize && mouse.x <= screenWidth - cellSize && mouse.y >= cellSize && mouse.y <= screenHeight - cellSize) {
