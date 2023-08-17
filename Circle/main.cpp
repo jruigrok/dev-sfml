@@ -31,14 +31,9 @@ int main(int argc, char* argv[]) {
     text.setFillColor(sf::Color::Red);
 
     sf::Color red(255, 0, 0, 255);
-    Circle c1(200, 100, 1, 0,red);
-    Circle c2(200, 100+cellSize, 1, 0, red);
-    Circle c3(200, 100 + cellSize * 2, 1, 0, red);
-    /*circles.push_back(c1);
-    for (int i = 0; i < 100; i++) {
-        c1.setPos(sf::Vector2f(100 + i, 100 + i));
-        circles.push_back(c1);
-    }*/
+    Circle c1(200, 100, 1.5, 0,red);
+    Circle c2(200, 100+cellSize, 1.5, 0, red);
+    Circle c3(200, 100 + cellSize * 2, 1.5, 0, red);
     
     fillGrid();
     
@@ -63,24 +58,24 @@ int main(int argc, char* argv[]) {
             }
         }
         timing.tick();
-        //window.clear();
+        window.clear();
         int l = circles.size();
         for (int i = 0; i < l; i++) {
-            //window.draw(circles[i].circle);
+            window.draw(circles[i].circle);
         }
         /*mouse = sf::Mouse::getPosition(window);
         if (mouse.x >= cellSize && mouse.x <= screenWidth - cellSize && mouse.y >= cellSize && mouse.y <= screenHeight - cellSize) {
             circles[0].setPos((sf::Vector2f)mouse);
         }*/
         for (int i = 0; i < subSteps; i++) {
-            update(dt/subSteps);
             fillGrid();
             searchGrid();
+            update(dt/subSteps);
         }
         
         //text.setString(timing.getCountString());
         //window.draw(text);
-        //window.display();
+        window.display();
     }
     
     return 0;
