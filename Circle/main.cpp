@@ -32,6 +32,8 @@ int main(int argc, char* argv[]) {
 
     sf::Color red(255, 0, 0, 255);
     Circle c1(200, 100, 1, 0,red);
+    Circle c2(200, 100+cellSize, 1, 0, red);
+    Circle c3(200, 100 + cellSize * 2, 1, 0, red);
     /*circles.push_back(c1);
     for (int i = 0; i < 100; i++) {
         c1.setPos(sf::Vector2f(100 + i, 100 + i));
@@ -52,6 +54,8 @@ int main(int argc, char* argv[]) {
                 }
                 if (Event.key.code == sf::Keyboard::Return) {
                     circles.push_back(c1);
+                    circles.push_back(c2);
+                    circles.push_back(c3);
                 }
                 if (Event.key.code == sf::Keyboard::Q) {
                     cout << "objs: " << circles.size() << endl;
@@ -59,7 +63,7 @@ int main(int argc, char* argv[]) {
             }
         }
         timing.tick();
-        window.clear();
+        //window.clear();
         int l = circles.size();
         for (int i = 0; i < l; i++) {
             //window.draw(circles[i].circle);
@@ -69,14 +73,14 @@ int main(int argc, char* argv[]) {
             circles[0].setPos((sf::Vector2f)mouse);
         }*/
         for (int i = 0; i < subSteps; i++) {
-            update(dt);
+            update(dt/subSteps);
             fillGrid();
             searchGrid();
         }
         
-        text.setString(timing.getCountString());
-        window.draw(text);
-        window.display();
+        //text.setString(timing.getCountString());
+        //window.draw(text);
+        //window.display();
     }
     
     return 0;
