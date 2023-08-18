@@ -5,24 +5,25 @@
 #include <math.h>
 using namespace std;
 
-const uint32_t radius = 3;
+const uint32_t radius = 5;
 const uint32_t pointCount = 10;
 const uint32_t cellSize = radius * 2;
-const uint32_t width = 300;
-const uint32_t height = 150;
+const uint32_t width = 200;
+const uint32_t height = 100;
 const uint32_t depth = 5;
 const uint32_t screenWidth = width * cellSize;
 const uint32_t screenHeight = height * cellSize;
 const uint32_t subSteps = 8;
 const float dt = 0.01;
 sf::Vector2f g = { 0,1000 };
+sf::VertexArray quad{ sf::Quads };
+sf::VertexArray world_va{ sf::Quads,4 };
 
 struct Circle {
 	sf::CircleShape circle;
 	sf::Vector2f pos;
 	sf::Vector2f a = {0,0};
 	sf::Vector2f oldPos;
-	sf::Vector2f drawPos;
 	sf::Vector2i gridPos;
 	sf::Vector2f v;
 	sf::Color color;
@@ -68,7 +69,7 @@ void fillGrid() {
 	const uint32_t l = circles.size();
 	int x;
 	int y;
-	for (int i = 0; i < l; i++) {
+	for (uint32_t i = 0; i < l; i++) {
 		x = (int)floorf(circles[i].pos.x / cellSize);
 		y = (int)floorf(circles[i].pos.y / cellSize);
 		if (gridL[x][y] < depth - 1) {
@@ -158,10 +159,28 @@ void update(float dt) {
 	addGravity(g);
 
 	// update positions
-	int l = circles.size();
-	for (int i = 0; i < l; i++) {
+	const uint32_t l = circles.size();
+	for (uint32_t i = 0; i < l; i++) {
 		circles[i].updatePos(dt);
 	}
 
 	boundingBox();
+}
+
+void makeQuads() {
+	
+	const uint32_t l = circles.size();
+	quad.resize(l * 4);
+	for (uint32_t i = 0; i < l; i++) {
+		const sf::Vector2f* pos = &circles[i].pos;
+		const uint32_t idx = i << 2;
+		quad[idx + 0].position = circles[i].pos + sf::Vector2f(-5, -5);
+		quad[idx + 1].position = circles[i].pos + sf::Vector2f(5, -5);
+		quad[idx + 2].position = circles[i].pos + sf::Vector2f(5, 5);
+		quad[idx + 3].position = circles[i].pos + sf::Vector2f(-5, 5);
+		quad[idx + 0].texCoords = sf::Vector2f(0.0f, 0.0f);
+		quad[idx + 1].texCoords = sf::Vector2f(cellSize, 0.0f);
+		quad[idx + 2].texCoords = sf::Vector2f(cellSize, cellSize);
+		quad[idx + 3].texCoords = sf::Vector2f(0.0f, cellSize);
+	}
 }

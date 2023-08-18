@@ -10,6 +10,16 @@ int main(int argc, char* argv[]) {
     const int screenHeight = height * cellSize;
     const int frameLimit = 60;
     sf::Vector2i mouse;
+    sf::Texture circleImg;
+    if (!circleImg.loadFromFile("circle.png")) {
+        cout << -1 << endl;
+    }
+    circleImg.setSmooth(true);
+    circleImg.generateMipmap();
+
+    sf::RenderStates states;
+    states.texture = &circleImg;
+    
 
     // Output project version
     std::cout << "Version: " << PROJECT_VERSION_MAJOR << "."
@@ -59,20 +69,15 @@ int main(int argc, char* argv[]) {
         }
         timing.tick();
         window.clear();
-        int l = circles.size();
-        for (int i = 0; i < l; i++) {
-            window.draw(circles[i].circle);
-        }
-        /*mouse = sf::Mouse::getPosition(window);
-        if (mouse.x >= cellSize && mouse.x <= screenWidth - cellSize && mouse.y >= cellSize && mouse.y <= screenHeight - cellSize) {
-            circles[0].setPos((sf::Vector2f)mouse);
-        }*/
+
         for (int i = 0; i < subSteps; i++) {
             fillGrid();
             searchGrid();
             update(dt/subSteps);
         }
+        makeQuads();
         
+        window.draw(quad, states);
         //text.setString(timing.getCountString());
         //window.draw(text);
         window.display();
