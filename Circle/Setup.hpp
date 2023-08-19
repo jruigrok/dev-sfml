@@ -3,57 +3,47 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics.hpp>
 #include <math.h>
-using namespace std;
 
-const uint32_t radius = 5;
+const float radius = 2.0f;
 const uint32_t pointCount = 10;
-const uint32_t cellSize = radius * 2;
-const uint32_t width = 200;
-const uint32_t height = 100;
+const float cellSize = radius * 2.0f;
+const uint32_t width = 400;
+const uint32_t height = 200;
 const uint32_t depth = 5;
-const uint32_t screenWidth = width * cellSize;
-const uint32_t screenHeight = height * cellSize;
+const uint32_t screenWidth = width * (uint32_t)std::ceil(cellSize);
+const uint32_t screenHeight = height * (uint32_t)std::ceil(cellSize);
 const uint32_t subSteps = 8;
-const float dt = 0.01;
+const float dt = 0.01f;
+constexpr float response_coef = 1.0f;
 sf::Vector2f g = { 0,1000 };
-sf::VertexArray quad{ sf::Quads };
-sf::VertexArray world_va{ sf::Quads,4 };
+sf::VertexArray quad{ sf::Quads, 80000 };
 
-struct Circle {
-	sf::CircleShape circle;
+class Circle 
+{
+public:
 	sf::Vector2f pos;
-	sf::Vector2f a = {0,0};
-	sf::Vector2f oldPos;
 	sf::Vector2i gridPos;
-	sf::Vector2f v;
-	sf::Color color;
-	
-	Circle(float x, float y, float vx,float vy, sf::Color c) 
-		:
-		pos(x, y), 
-		oldPos(x-vx, y-vy), 
-		circle(radius, pointCount), 
-		color(c.r, c.g, c.b, c.a)
-	{
-		circle.setFillColor(color);
-		circle.setPosition(pos);
-	};
-	void setPos(sf::Vector2f Pos) {
-		pos = Pos;
-		circle.setPosition(pos);
-	}
+	sf::Vector2f a = { 0,0 };
+	sf::Vector2f oldPos;
 
-	void movePos(sf::Vector2f Pos) {
-		pos += Pos;
-		circle.setPosition(pos);
-	}
+	Circle(sf::Vector2f Pos, sf::Vector2f v)
+		:
+		pos(Pos),
+		oldPos(Pos - v) {};
 
 	void updatePos(float dt) {
 		v = pos - oldPos;
 		oldPos = pos;
-		movePos(v + a * dt * dt);
+		pos += v + a * dt * dt;
 		a = { 0,0 };
 	}
+
+	void setVelocity(sf::Vector2f v) {
+		oldPos = pos - v;
+	}
+
+private:
+	sf::Vector2f v;
 };
 
 std::vector<Circle> circles;
@@ -66,12 +56,11 @@ void fillGrid() {
 			gridL[i][j] = 0;
 		}
 	}
-	const uint32_t l = circles.size();
 	int x;
 	int y;
-	for (uint32_t i = 0; i < l; i++) {
-		x = (int)floorf(circles[i].pos.x / cellSize);
-		y = (int)floorf(circles[i].pos.y / cellSize);
+	for (uint32_t i = 0; i < circles.size(); i++) {
+		x = static_cast<uint32_t> (std::floor(circles[i].pos.x / cellSize));
+		y = static_cast<uint32_t> (std::floor(circles[i].pos.y / cellSize));
 		if (gridL[x][y] < depth - 1) {
 			grid[x][y][gridL[x][y]] = i;
 			gridL[x][y]++;
@@ -81,8 +70,7 @@ void fillGrid() {
 }
 
 void addGravity(sf::Vector2f g) {
-	const uint32_t l = circles.size();
-	for (uint32_t i = 0; i < l; i++) {
+	for (uint32_t i = 0; i < circles.size(); i++) {
 		circles[i].a = g;
 	}
 }
@@ -92,7 +80,6 @@ void collide(uint32_t v1[], uint32_t v2[], uint32_t v1l, uint32_t v2l) {
 		return;
 	}
 	else {
-		constexpr float response_coef = 1.0f;
 		for (uint32_t i = 0; i < v1l; i++) {
 			for (uint32_t j = 0; j < v2l; j++) {
 				if (v1[i] != v2[j]) {
@@ -136,19 +123,18 @@ void searchGrid() {
 }
 
 void boundingBox() {
-	int l = circles.size();
-	for (int i = 0; i < l; i++) {
-		if (circles[i].pos.x <= cellSize * 2) {
-			circles[i].pos.x = cellSize * 2;
+	for (int i = 0; i < circles.size(); i++) {
+		if (circles[i].pos.x <= cellSize * 2.1) {
+			circles[i].pos.x = cellSize * 2.1f;
 		}
-		if (circles[i].pos.x >= screenWidth - cellSize * 2) {
-			circles[i].pos.x = screenWidth - cellSize * 2;
+		if (circles[i].pos.x >= width * cellSize - 2.1 * cellSize) {
+			circles[i].pos.x = width * cellSize - 2.1f * cellSize;
 		}
-		if (circles[i].pos.y <= cellSize * 2) {
-			circles[i].pos.y = cellSize * 2;
+		if (circles[i].pos.y <= cellSize * 2.1) {
+			circles[i].pos.y = cellSize * 2.1f;
 		}
-		if (circles[i].pos.y >= screenHeight - cellSize * 2) {
-			circles[i].pos.y = screenHeight - cellSize * 2;
+		if (circles[i].pos.y >= height * cellSize - 2.1 * cellSize) {
+			circles[i].pos.y = height * cellSize - 2.1f * cellSize;
 		}
 	}
 }
@@ -159,8 +145,7 @@ void update(float dt) {
 	addGravity(g);
 
 	// update positions
-	const uint32_t l = circles.size();
-	for (uint32_t i = 0; i < l; i++) {
+	for (uint32_t i = 0; i < circles.size(); i++) {
 		circles[i].updatePos(dt);
 	}
 
@@ -168,19 +153,19 @@ void update(float dt) {
 }
 
 void makeQuads() {
-	
-	const uint32_t l = circles.size();
-	quad.resize(l * 4);
+	const size_t l = circles.size();
+	const uint32_t size = 1024;
+	//quad.resize(l * 4);
 	for (uint32_t i = 0; i < l; i++) {
 		const sf::Vector2f* pos = &circles[i].pos;
 		const uint32_t idx = i << 2;
-		quad[idx + 0].position = circles[i].pos + sf::Vector2f(-5, -5);
-		quad[idx + 1].position = circles[i].pos + sf::Vector2f(5, -5);
-		quad[idx + 2].position = circles[i].pos + sf::Vector2f(5, 5);
-		quad[idx + 3].position = circles[i].pos + sf::Vector2f(-5, 5);
+		quad[idx + 0].position = circles[i].pos + sf::Vector2f(-radius,-radius);
+		quad[idx + 1].position = circles[i].pos + sf::Vector2f(radius, -radius);
+		quad[idx + 2].position = circles[i].pos + sf::Vector2f(radius, radius);
+		quad[idx + 3].position = circles[i].pos + sf::Vector2f(-radius, radius);
 		quad[idx + 0].texCoords = sf::Vector2f(0.0f, 0.0f);
-		quad[idx + 1].texCoords = sf::Vector2f(cellSize, 0.0f);
-		quad[idx + 2].texCoords = sf::Vector2f(cellSize, cellSize);
-		quad[idx + 3].texCoords = sf::Vector2f(0.0f, cellSize);
+		quad[idx + 1].texCoords = sf::Vector2f(size, 0.0f);
+		quad[idx + 2].texCoords = sf::Vector2f(size, size);
+		quad[idx + 3].texCoords = sf::Vector2f(0.0f, size);
 	}
 }

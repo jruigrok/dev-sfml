@@ -6,19 +6,24 @@
 
 
 int main(int argc, char* argv[]) {
-    const int screenWidth = width * cellSize;
-    const int screenHeight = height * cellSize;
-    const int frameLimit = 60;
+    const uint32_t screenWidth = width * (uint32_t)cellSize;
+    const uint32_t screenHeight = height * (uint32_t)cellSize;
+    const uint32_t frameLimit = 60;
+    std:: string circlePngFilename("circle.png");
+
     sf::Vector2i mouse;
     sf::Texture circleImg;
-    if (!circleImg.loadFromFile("circle.png")) {
-        cout << -1 << endl;
+    if (!circleImg.loadFromFile(circlePngFilename)) {
+        throw std::runtime_error("Error file not found " + circlePngFilename);
     }
     circleImg.setSmooth(true);
     circleImg.generateMipmap();
 
     sf::RenderStates states;
     states.texture = &circleImg;
+    //sf::Transform scale;
+    //scale.scale(5, 5);
+    //states.transform = scale;
     
 
     // Output project version
@@ -40,10 +45,7 @@ int main(int argc, char* argv[]) {
     text.setStyle(sf::Text::Bold);
     text.setFillColor(sf::Color::Red);
 
-    sf::Color red(255, 0, 0, 255);
-    Circle c1(200, 100, 1.5, 0,red);
-    Circle c2(200, 100+cellSize, 1.5, 0, red);
-    Circle c3(200, 100 + cellSize * 2, 1.5, 0, red);
+    Circle c1({ 200,100 }, { 0.5,0 });
     
     fillGrid();
     
@@ -58,9 +60,13 @@ int main(int argc, char* argv[]) {
                     window.close();
                 }
                 if (Event.key.code == sf::Keyboard::Return) {
-                    circles.push_back(c1);
-                    circles.push_back(c2);
-                    circles.push_back(c3);
+                    c1.pos = { 200,100 };
+                    c1.oldPos.y = c1.pos.y;
+                    for (uint32_t i = 0; i < 10; i++) {
+                        c1.pos += {0, cellSize};
+                        c1.oldPos.y = c1.pos.y;
+                        circles.emplace_back(c1);
+                    }
                 }
                 if (Event.key.code == sf::Keyboard::Q) {
                     cout << "objs: " << circles.size() << endl;
@@ -69,8 +75,17 @@ int main(int argc, char* argv[]) {
         }
         timing.tick();
         window.clear();
-
-        for (int i = 0; i < subSteps; i++) {
+        if (circles.size() < 10000) {
+            c1.pos = { 200,100 };
+            c1.oldPos.y = c1.pos.y;
+            for (uint32_t i = 0; i < 10; i++) {
+                c1.pos += {0, cellSize};
+                c1.oldPos.y = c1.pos.y;
+                circles.push_back(c1);
+            }
+        }
+        
+        for (uint32_t i = 0; i < subSteps; i++) {
             fillGrid();
             searchGrid();
             update(dt/subSteps);
