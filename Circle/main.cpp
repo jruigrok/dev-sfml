@@ -52,6 +52,8 @@ int main(int argc, char* argv[]) {
     Circle c1({ 200,100 }, { 0.5,0 });
     
     fillGrid();
+
+    testGrid();
     
     // Handle closing the window
     while(window.isOpen()) {
