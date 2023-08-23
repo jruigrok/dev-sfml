@@ -9,6 +9,10 @@ int main(int argc, char* argv[]) {
     const uint32_t screenWidth = width * (uint32_t)cellSize;
     const uint32_t screenHeight = height * (uint32_t)cellSize;
     const uint32_t frameLimit = 60;
+
+    System system(0.001f, 8);
+
+
     std:: string circlePngFilename("circle.png");
 
     sf::Vector2i mouse;
@@ -85,14 +89,9 @@ int main(int argc, char* argv[]) {
             }
         }
         
-        for (uint32_t i = 0; i < subSteps; i++) {
-            fillGrid();
-            searchGrid();
-            update(dt/subSteps);
-        }
-        makeQuads();
+        system.nextFrame();
         
-        window.draw(quad, states);
+        window.draw(system.quad, states);
         //text.setString(timing.getCountString());
         //window.draw(text);
         window.display();
