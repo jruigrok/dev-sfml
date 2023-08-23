@@ -32,6 +32,7 @@ add_executable(SFMLCircle main.cpp)
 # Set include directory search paths
 target_include_directories(SFMLCircle 
   PRIVATE
+  "${CMAKE_CURRENT_SOURCE_DIR}"
   "${PROJECT_BINARY_DIR}"
   )
 
