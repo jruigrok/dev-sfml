@@ -17,9 +17,6 @@ if(NOT CMAKE_BUILD_TYPE)
     )
 endif()
 
-# Generate config.h
-configure_file(config.h.in config.h)
-
 # Find SFML shared libraries
 find_package(SFML 2.5
   COMPONENTS 
@@ -28,6 +25,15 @@ find_package(SFML 2.5
 
 # Compile executable
 add_executable(SFMLCircle main.cpp)
+
+#Define base directory for artifacts
+
+cmake_path(SET ArtifactsPath "${CMAKE_CURRENT_SOURCE_DIR}/artifacts/")
+set(ARTIFACTS_PATH_STRING "${ArtifactsPath}")
+message("Cmake Artifacts path is ${ArtifactsPath}")
+
+# Generate config.h
+configure_file(config.h.in config.h)
 
 # Set include directory search paths
 target_include_directories(SFMLCircle 

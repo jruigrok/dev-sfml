@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
     System system(0.001f, 8);
 
 
-    std:: string circlePngFilename("circle.png");
+    std::string pngPath = std::string(ARTIFACTS_PATH) + "circle.png";
 
     sf::Vector2i mouse;
     sf::Texture circleImg;
