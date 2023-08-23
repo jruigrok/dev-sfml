@@ -13,12 +13,12 @@ int main(int argc, char* argv[]) {
     System system(0.001f, 8);
 
 
-    std::string pngPath = std::string(ARTIFACTS_PATH) + "circle.png";
+    std::string circlePngFilepath = std::string(ARTIFACTS_PATH) + "circle.png";
 
     sf::Vector2i mouse;
     sf::Texture circleImg;
-    if (!circleImg.loadFromFile(circlePngFilename)) {
-        throw std::runtime_error("Error file not found " + circlePngFilename);
+    if (!circleImg.loadFromFile(circlePngFilepath)) {
+        throw std::runtime_error("Error file not found " + circlePngFilepath);
     }
     circleImg.setSmooth(true);
     circleImg.generateMipmap();
