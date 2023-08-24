@@ -6,11 +6,12 @@
 
 
 int main(int argc, char* argv[]) {
+    const uint32_t width = 200;
+    const uint32_t height = 100;
+    const uint32_t cellSize = 8;
     const uint32_t screenWidth = width * (uint32_t)cellSize;
     const uint32_t screenHeight = height * (uint32_t)cellSize;
     const uint32_t frameLimit = 60;
-
-    System system(0.001f, 8);
 
 
     std::string circlePngFilepath = std::string(ARTIFACTS_PATH) + "circle.png";
@@ -25,9 +26,6 @@ int main(int argc, char* argv[]) {
 
     sf::RenderStates states;
     states.texture = &circleImg;
-    //sf::Transform scale;
-    //scale.scale(5, 5);
-    //states.transform = scale;
     
 
     // Output project version
@@ -42,18 +40,20 @@ int main(int argc, char* argv[]) {
     
     
     sf::Font font;
-    font.loadFromFile("Fonts/arial.ttf");
+    font.loadFromFile(std::string(ARTIFACTS_PATH) + "Fonts/arial.ttf");
     // Creae a text
     sf::Text text("hello", font);
     text.setCharacterSize(30);
     text.setStyle(sf::Text::Bold);
     text.setFillColor(sf::Color::Red);
 
-    Circle c1({ 200,100 }, { 0.5,0 });
-    
-    fillGrid();
+    Circle c1({ 200,100 }, { 1,0 });
 
-    testGrid();
+    //testGrid();
+
+    std::vector<Circle> circles;
+    Grid grid(width, height, 5, cellSize, circles);
+    System system(0.001f, 8, grid, window, states);
     
     // Handle closing the window
     while(window.isOpen()) {
@@ -91,9 +91,9 @@ int main(int argc, char* argv[]) {
             }
         }
         
-        system.nextFrame();
-        
-        window.draw(system.quad, states);
+        system.updatePos();
+        system.drawFrame();
+        //window.draw(system.quad, states);
         //text.setString(timing.getCountString());
         //window.draw(text);
         window.display();
