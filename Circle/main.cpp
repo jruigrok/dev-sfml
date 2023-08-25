@@ -6,9 +6,9 @@
 
 
 int main(int argc, char* argv[]) {
-    const uint32_t width = 200;
-    const uint32_t height = 100;
-    const uint32_t cellSize = 8;
+    const uint32_t width = 400;
+    const uint32_t height = 200;
+    const uint32_t cellSize = 4;
     const uint32_t screenWidth = width * (uint32_t)cellSize;
     const uint32_t screenHeight = height * (uint32_t)cellSize;
     const uint32_t frameLimit = 60;
@@ -48,13 +48,28 @@ int main(int argc, char* argv[]) {
     text.setFillColor(sf::Color::Red);
 
     Circle c1({ 200,100 }, { 1,0 });
+    
+    
 
     //testGrid();
 
     std::vector<Circle> circles;
+    std::vector<Link> links;
+
     Grid grid(width, height, 5, cellSize, circles);
-    System system(0.001f, 8, grid, window, states);
-    
+    System system(0.001f, 8, grid, window, states, links);
+
+    /*circles.push_back(c1);
+    circles.push_back(c2);
+
+    Link l1(0, 1, c1.pos, c2.pos);
+    links.push_back(l1);
+    circles.push_back(c3);*/
+
+    //system.makeRigidBody(100, 100, 3, 3);
+    //system.makeRigidBody(150, 400, 40, 40,0.5);
+    system.makeRope(400, 100, 20, 0.8);
+
     // Handle closing the window
     while(window.isOpen()) {
         sf::Event Event;
@@ -93,9 +108,6 @@ int main(int argc, char* argv[]) {
         
         system.updatePos();
         system.drawFrame();
-        //window.draw(system.quad, states);
-        //text.setString(timing.getCountString());
-        //window.draw(text);
         window.display();
     }
     
