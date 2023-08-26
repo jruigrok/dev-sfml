@@ -53,10 +53,12 @@ int main(int argc, char* argv[]) {
 
     //testGrid();
 
-    std::vector<Circle> circles;
+    //std::vector<Circle> circles;
     std::vector<Link> links;
 
-    Grid grid(width, height, 5, cellSize, circles);
+    Grid<Circle> grid(width, height, 5, cellSize);
+
+
     System system(0.001f, 8, grid, window, states, links);
 
     /*circles.push_back(c1);
@@ -86,23 +88,23 @@ int main(int argc, char* argv[]) {
                     for (uint32_t i = 0; i < 10; i++) {
                         c1.pos += {0, cellSize};
                         c1.oldPos.y = c1.pos.y;
-                        circles.emplace_back(c1);
+                        grid.addElementToGrid(c1);
                     }
                 }
                 if (Event.key.code == sf::Keyboard::Q) {
-                    cout << "objs: " << circles.size() << endl;
+                    cout << "objs: " << grid.circles.size() << endl;
                 }
             }
         }
         timing.tick();
         window.clear();
-        if (circles.size() < 10000) {
+        if (grid.circles.size() < 10000) {
             c1.pos = { 200,100 };
             c1.oldPos.y = c1.pos.y;
             for (uint32_t i = 0; i < 10; i++) {
                 c1.pos += {0, cellSize};
                 c1.oldPos.y = c1.pos.y;
-                circles.push_back(c1);
+                grid.addElementToGrid(c1);
             }
         }
         

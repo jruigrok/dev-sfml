@@ -34,14 +34,8 @@ private:
 
 
 class Link
-{
-	float dist;
-	float rigigity;
-	uint64_t idx1;
-	uint64_t idx2;
-	
+{	
 public:
-
 	Link(uint64_t idx1_, uint64_t idx2_, float dist_, float rigigity_) :
 		idx1(idx1_), idx2(idx2_), dist(dist_), rigigity(rigigity_)
 	{};
@@ -53,6 +47,8 @@ public:
 		dist = sqrt(axis.x * axis.x + axis.y * axis.y);
 	};
 
+	~Link() = default;
+
 	void update(std::vector<Circle>& circles) {
 		Circle& ob1 = circles[idx1];
 		Circle& ob2 = circles[idx2];
@@ -63,13 +59,15 @@ public:
 		ob1.pos += 0.5f * delta * dir * rigigity;
 		ob2.pos -= 0.5f * delta * dir * rigigity;
 	}
+private:
+	float dist;
+	const float rigigity;
+	const uint64_t idx1;
+	const uint64_t idx2;
 };
 
 class Pin
 {
-	sf::Vector2f pos;
-	uint64_t idx;
-
 public:
 
 	Pin(uint64_t idx_, sf::Vector2f pos_):
@@ -80,22 +78,26 @@ public:
 		Circle& ob = circles[idx];
 		ob.pos = pos;
 	}
+
+private: 
+	sf::Vector2f pos;
+	uint64_t idx;
 };
 
-
+template <class T>
 class Grid
 {
 public:
 
 	const float radius;
 	const float cellSize;
-	std::vector<Circle>& circles;
+	std::vector<T> circles;
 	uint32_t width;
 	uint32_t height;
 	uint32_t depth;
-
-	Grid(uint32_t width_, uint32_t height_, uint32_t depth_, float cellSize_, std::vector<Circle>& circleRef) 
-		: width(width_), height(height_), depth(depth_), circles(circleRef), cellSize(cellSize_), radius(cellSize_ / 2.0f)
+			
+	Grid(uint32_t width_, uint32_t height_, uint32_t depth_, float cellSize_) 
+		: width(width_), height(height_), depth(depth_), cellSize(cellSize_), radius(cellSize_ / 2.0f)
 	{
 		// grid allocation (3d array)
 		// when accessing grid,  we will do with  grid[width][height][depth]
@@ -143,6 +145,11 @@ public:
 
 	}
 
+
+	size_t size()
+	{
+		return circles.size();
+	}
 
 	void fillGrid() {
 		for (uint32_t i = 0; i < width; i++) {
@@ -206,6 +213,18 @@ public:
 		}
 	}
 
+	void addElementToGrid(T &element)
+	{
+		circles.emplace_back(element);
+	}
+
+	void setGravity(sf::Vector2f g) {
+		// Lock
+		for (uint32_t i = 0; i < circles.size(); i++) {
+			circles[i].a = g;
+		}
+		// Unlock
+	}
 
 private:
 
@@ -234,7 +253,6 @@ private:
 			}
 		}
 	}
-
 	const float response_coef = 1.0f;
 	uint32_t ***grid;
 	uint32_t **gridL;
@@ -244,74 +262,8 @@ private:
 
 
 class System {
-
-	sf::Vector2f g = { 0, 1000 };
-	sf::VertexArray objectVA{ sf::Quads, 80000 };
-	sf::VertexArray linkVA	{ sf::Lines, 10000 };
-	float dt;
-	uint32_t subSteps;
-	Grid& grid;
-	sf::RenderWindow& window;
-	sf::RenderStates& states;
-	std::vector <Link> links;
-	std::vector <Pin> pins;
-
-
-
-	void addGravity(sf::Vector2f g) {
-		for (uint32_t i = 0; i < grid.circles.size(); i++) {
-			grid.circles[i].a = g;
-		}
-	}
-
-	void handleConstraints() {
-		for (uint32_t i = 0; i < links.size(); i++) {
-			links[i].update(grid.circles);
-		}
-
-		for (uint32_t i = 0; i < pins.size(); i++) {
-			pins[i].update(grid.circles);
-		}
-	}
-
-	void update() {
-		// apply gravity
-		addGravity(g);
-		handleConstraints();
-
-		// update positions
-		for (uint32_t i = 0; i < grid.circles.size(); i++) {
-			grid.circles[i].updatePos(dt);
-		}
-
-		
-
-		grid.boundingBox();
-	}
-
-	void makeVAs() {
-		const size_t l = grid.circles.size();
-		const uint32_t size = 1024;
-		for (uint32_t i = 0; i < l; i++) {
-			const sf::Vector2f* pos = &grid.circles[i].pos;
-			const uint32_t idx = i << 2;
-			const float &radius = grid.radius;
-			objectVA[idx + 0].position = grid.circles[i].pos + sf::Vector2f(-radius, -radius);
-			objectVA[idx + 1].position = grid.circles[i].pos + sf::Vector2f(radius, -radius);
-			objectVA[idx + 2].position = grid.circles[i].pos + sf::Vector2f(radius, radius);
-			objectVA[idx + 3].position = grid.circles[i].pos + sf::Vector2f(-radius, radius);
-			objectVA[idx + 0].texCoords = sf::Vector2f(0.0f, 0.0f);
-			objectVA[idx + 1].texCoords = sf::Vector2f(size, 0.0f);
-			objectVA[idx + 2].texCoords = sf::Vector2f(size, size);
-			objectVA[idx + 3].texCoords = sf::Vector2f(0.0f, size);
-		}
-
-
-	}
-
 public:
-
-	System(float dt_, uint32_t subSteps_, Grid& grid_, sf::RenderWindow& window_, sf::RenderStates& states_, std::vector<Link>& links_) :
+	System(float dt_, uint32_t subSteps_, Grid<Circle>& grid_, sf::RenderWindow& window_, sf::RenderStates& states_, std::vector<Link>& links_) :
 		dt(dt_),
 		subSteps(subSteps_),
 		grid(grid_),
@@ -337,9 +289,10 @@ public:
 		float diaL = sqrt(grid.cellSize * grid.cellSize + grid.cellSize * grid.cellSize);
 		for (uint32_t i = 0; i < width; i++) {
 			for (uint32_t j = 0; j < height; j++) {
-				grid.circles.push_back({ { x + i * grid.cellSize, y + j * grid.cellSize }, { 0,0 } });
+				Circle c({ { x + i * grid.cellSize, y + j * grid.cellSize }, { 0,0 } });
+				grid.addElementToGrid(c);
 				if (j != 0) {
-					links.push_back({ grid.circles.size() - 1, grid.circles.size() - 2, grid.cellSize, rigigity });
+					links.push_back({ grid.size() - 1, grid.circles.size() - 2, grid.cellSize, rigigity});
 				}
 
 				if (i != 0) {
@@ -363,6 +316,63 @@ public:
 		for (uint32_t i = 1; i < length; i++) {
 			grid.circles.push_back({ { x, y + i * grid.cellSize }, { 0,0 } });
 			links.push_back({ grid.circles.size() - 1, grid.circles.size() - 2, grid.cellSize, rigigity });
+		}
+	}
+
+
+private:
+	sf::Vector2f g = { 0, 1000 };
+	sf::VertexArray objectVA{ sf::Quads, 80000 };
+	sf::VertexArray linkVA{ sf::Lines, 10000 };
+	float dt;
+	uint32_t subSteps;
+	Grid<Circle>& grid;
+	sf::RenderWindow& window;
+	sf::RenderStates& states;
+	std::vector <Link> links;
+	std::vector <Pin> pins;
+
+	void addGravity(sf::Vector2f g) {
+		grid.setGravity(g);
+	}
+
+	void handleConstraints() {
+		for (uint32_t i = 0; i < links.size(); i++) {
+			links[i].update(grid.circles);
+		}
+
+		for (uint32_t i = 0; i < pins.size(); i++) {
+			pins[i].update(grid.circles);
+		}
+	}
+
+	void update() {
+		// apply gravity
+		addGravity(g);
+		handleConstraints();
+
+		// update positions
+		for (uint32_t i = 0; i < grid.circles.size(); i++) {
+			grid.circles[i].updatePos(dt);
+		}
+		grid.boundingBox();
+	}
+
+	void makeVAs() {
+		const size_t l = grid.circles.size();
+		const uint32_t size = 1024;
+		for (uint32_t i = 0; i < l; i++) {
+			const sf::Vector2f* pos = &grid.circles[i].pos;
+			const uint32_t idx = i << 2;
+			const float& radius = grid.radius;
+			objectVA[idx + 0].position = grid.circles[i].pos + sf::Vector2f(-radius, -radius);
+			objectVA[idx + 1].position = grid.circles[i].pos + sf::Vector2f(radius, -radius);
+			objectVA[idx + 2].position = grid.circles[i].pos + sf::Vector2f(radius, radius);
+			objectVA[idx + 3].position = grid.circles[i].pos + sf::Vector2f(-radius, radius);
+			objectVA[idx + 0].texCoords = sf::Vector2f(0.0f, 0.0f);
+			objectVA[idx + 1].texCoords = sf::Vector2f(size, 0.0f);
+			objectVA[idx + 2].texCoords = sf::Vector2f(size, size);
+			objectVA[idx + 3].texCoords = sf::Vector2f(0.0f, size);
 		}
 	}
 };
