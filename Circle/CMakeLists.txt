@@ -24,7 +24,7 @@ find_package(SFML 2.5
   )
 
 # Compile executable
-add_executable(SFMLCircle main.cpp)
+add_executable(SFMLCircle main.cpp Example.cpp)
 
 #Define base directory for artifacts
 

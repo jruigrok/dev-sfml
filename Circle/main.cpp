@@ -3,6 +3,8 @@
 #include <iostream>
 #include <Timing.hpp>
 #include <Setup.hpp>
+#include <Examples.hpp>
+#include <functional>
 
 
 int main(int argc, char* argv[]) {
@@ -50,7 +52,18 @@ int main(int argc, char* argv[]) {
     Circle c1({ 200,100 }, { 1,0 });
     
     
+    std::function<void(uint32_t startIndex, uint32_t endIndex)> processingFunction = [&](uint32_t startIndex, uint32_t endIndex) {
+        std::cout << "Processing Function from startIndex:" << std::to_string(startIndex) << " to EndIndex:" << std::to_string(endIndex) << std::endl;
+        };
 
+    MultiThreadedProcessing multiThreadedExample(11 /* num elements*/, 2 /* numThreads*/, processingFunction);
+
+
+    multiThreadedExample.processAll();
+
+    std::cout << "Here" << std::endl;
+    multiThreadedExample.processAll();
+    //multiThreadedExample
     //testGrid();
 
     //std::vector<Circle> circles;
@@ -96,6 +109,7 @@ int main(int argc, char* argv[]) {
                 }
             }
         }
+        multiThreadedExample.processAll();
         timing.tick();
         window.clear();
         if (grid.circles.size() < 10000) {
