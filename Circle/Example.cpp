@@ -109,18 +109,15 @@ MultiThreadedProcessing::~MultiThreadedProcessing()
 {
 	for (uint32_t i = 0; i < numThreads_; i++)
 	{
-		//threadControl_.at(i).endProcessingAndExitThread();
-	}
-	for (uint32_t i = 0; i < numThreads_; i++)
-	{
-		std::unique_lock<std::mutex> lk(threadControl_[i].threadMutex);
-		threadControl_[i].forceEnd = true;
+		{
+			std::unique_lock<std::mutex> lk(threadControl_[i].threadMutex);
+			threadControl_[i].forceEnd = true;
+		}
 		threadControl_[i].threadCv.notify_one();
 		if (threads_[i].joinable())
 		{
 			threads_.at(i).join();
 		}
-
 	}
 }
 
@@ -147,22 +144,29 @@ void MultiThreadedProcessing::threadFunction(ThreadControl& data)
 	while (!data.forceEnd)
 	{
 		std::unique_lock<std::mutex> lk(data.threadMutex);
-		data.threadCv.wait(lk, [&data] {return data.start == true; });
+		data.threadCv.wait(lk, [&data] {return (data.start == true || data.forceEnd == true); });
+		if (data.forceEnd == true)
+		{
+			return;
+		}
 		// Here we got the start signal, and we have the lock
 		
+		// Call the processing function callback with the range of indexes to process
 		processingFunction_(data.startIndex, data.endIndex);
-		ss << "processing Thread[" << std::to_string(data.threadId) << "]: element:";
 
+		// For debugging only
+#if 0
+		ss << "processing Thread[" << std::to_string(data.threadId) << "]: element:";
 		for (auto i = data.startIndex; i <= data.endIndex; i++)
 		{
 			// Here you do what ever processing is needed on the specific elments 
 			elementsCount_.at(i)++;
 			ss << "[" << std::to_string(i) << "]:" << std::to_string(elementsCount_.at(i)) << " ";
 		}
-
 		ss << std::endl;
 		std::cout << ss.str();
 		ss.clear();
+#endif
 		data.completed = true;
 		data.threadCompletedCv.notify_one();
 		// Here we reset start, and at the data.threadCv.wait, we will release the lock, so the start function can be called again.

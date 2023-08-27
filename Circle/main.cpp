@@ -58,14 +58,6 @@ int main(int argc, char* argv[]) {
 
     MultiThreadedProcessing multiThreadedExample(11 /* num elements*/, 2 /* numThreads*/, processingFunction);
 
-
-    multiThreadedExample.processAll();
-
-    std::cout << "Here" << std::endl;
-    multiThreadedExample.processAll();
-    //multiThreadedExample
-    //testGrid();
-
     //std::vector<Circle> circles;
     std::vector<Link> links;
 
