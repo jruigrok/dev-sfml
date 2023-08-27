@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
         std::cout << "Processing Function from startIndex:" << std::to_string(startIndex) << " to EndIndex:" << std::to_string(endIndex) << std::endl;
         };
 
-    MultiThreadedProcessing multiThreadedExample(11 /* num elements*/, 2 /* numThreads*/, processingFunction);
+    MultiThreadedProcessing multiThreadedExample(2 /* numThreads*/, processingFunction);
 
     //std::vector<Circle> circles;
     std::vector<Link> links;
@@ -99,6 +99,7 @@ int main(int argc, char* argv[]) {
                 }
             }
         }
+        multiThreadedExample.setNumElements(grid.size());
         multiThreadedExample.processAll();
         timing.tick();
         window.clear();
