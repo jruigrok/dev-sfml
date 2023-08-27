@@ -92,9 +92,7 @@ bool  MultiThreadedProcessing::setNumElements(uint32_t numElements)
 }
 
 void MultiThreadedProcessing::setElementsPerThread()
-{
-	
-	
+{	
 	if (numThreads_ == 1)
 	{
 		// Corner Case
@@ -109,7 +107,6 @@ void MultiThreadedProcessing::setElementsPerThread()
 
 		for (uint32_t i = 0; i < numThreads_; i++)
 		{
-
 			threadControl_[i].startIndex = startIndex;
 			threadControl_[i].endIndex = startIndex + numIndexPerThread - 1;
 			startIndex = threadControl_[i].endIndex + 1;
@@ -139,6 +136,7 @@ void MultiThreadedProcessing::setElementsPerThread()
 
 void MultiThreadedProcessing::processAll()
 {
+	std::unique_lock<std::mutex> lk(interfaceMutex_);
 	if (numElements_ == 0)
 	{
 		return;
