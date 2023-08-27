@@ -2,9 +2,9 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <iostream>
 #include <Timing.hpp>
-#include <Setup.hpp>
 #include <Examples.hpp>
 #include <functional>
+#include <System.hpp>
 
 
 int main(int argc, char* argv[]) {
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
     Grid<Circle> grid(width, height, 5, cellSize);
 
 
-    System system(0.001f, 8, grid, window, states, links);
+    System system(0.001f, 8, grid, window, states);
 
     /*circles.push_back(c1);
     circles.push_back(c2);
@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
 
     //system.makeRigidBody(100, 100, 3, 3);
     //system.makeRigidBody(150, 400, 40, 40,0.5);
-    system.makeRope(400, 100, 20, 0.8);
+    //system.makeRope(400, 100, 20, 0.8);
 
     // Handle closing the window
     while(window.isOpen()) {
@@ -88,28 +88,26 @@ int main(int argc, char* argv[]) {
                     window.close();
                 }
                 if (Event.key.code == sf::Keyboard::Return) {
-                    c1.pos = { 200,100 };
-                    c1.oldPos.y = c1.pos.y;
+                    c1.setPos({ 200,100 });
                     for (uint32_t i = 0; i < 10; i++) {
-                        c1.pos += {0, cellSize};
-                        c1.oldPos.y = c1.pos.y;
+                        c1.movePos({ 0, cellSize });
                         grid.addElementToGrid(c1);
                     }
                 }
                 if (Event.key.code == sf::Keyboard::Q) {
-                    cout << "objs: " << grid.circles.size() << endl;
+                    cout << "objs: " << grid.size() << endl;
                 }
             }
         }
         multiThreadedExample.processAll();
         timing.tick();
         window.clear();
-        if (grid.circles.size() < 10000) {
-            c1.pos = { 200,100 };
-            c1.oldPos.y = c1.pos.y;
+        if (grid.size() < 10000) {
+            c1.setPos({ 200, 100 });
             for (uint32_t i = 0; i < 10; i++) {
-                c1.pos += {0, cellSize};
-                c1.oldPos.y = c1.pos.y;
+                //c1.pos += {0, cellSize};
+                c1.movePos({ 0, cellSize });
+                //c1.setVelocity({ 1,0 });
                 grid.addElementToGrid(c1);
             }
         }
