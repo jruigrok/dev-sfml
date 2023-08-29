@@ -1,12 +1,16 @@
 #pragma once
 #include <Constraints.hpp>
+#include <memory>
+#include <Examples.hpp>
+#include <functional>
 
+//#define MULTIPROC 1
 template <class T>
 class Grid
 {
 public:
 	Grid(uint32_t width_, uint32_t height_, uint32_t depth_, float cellSize_)
-		: width(width_), height(height_), depth(depth_), cellSize(cellSize_), radius(cellSize_ / 2.0f)
+		: width(width_), height(height_), depth(depth_), cellSize(cellSize_), radius(cellSize_ / 2.0f)  
 	{
 		// grid allocation (3d array)
 		// when accessing grid,  we will do with  grid[width][height][depth]
@@ -26,7 +30,11 @@ public:
 		{
 			gridL[i] = new uint32_t[height];
 		}
-
+		gridProcessingFunction = [&](uint32_t startIndex, uint32_t endIndex) {
+			searchGridProcessing(startIndex, endIndex);
+			};
+		multiProcess_uPtr = std::make_unique<MultiThreadedProcessing>(1, gridProcessingFunction);
+		multiProcess_uPtr->setNumElements(width);
 	}
 
 	~Grid()
@@ -78,6 +86,16 @@ public:
 	}
 
 	void searchGrid(uint32_t startIdx, uint32_t endIdx) {
+#ifdef MULTIPROC
+		multiProcess_uPtr->setNumElements(endIdx - startIdx);
+		multiProcess_uPtr->processAll();
+#else
+		searchGridProcessing(startIdx, endIdx);
+#endif
+	}
+
+
+	void searchGridProcessing(uint32_t startIdx, uint32_t endIdx) {
 		//const uint32_t x = width - 2;
 		const uint32_t y = height - 2;
 		for (uint32_t i = endIdx; i > startIdx; i--) {
@@ -207,5 +225,8 @@ private:
 	std::vector<T> circles;
 	std::vector <Link> links;
 	sf::VertexArray objectVA{ sf::Quads, 160000 };
+
+	std::function<void(uint32_t startIndex, uint32_t endIndex)> gridProcessingFunction;
+	std::unique_ptr<MultiThreadedProcessing> multiProcess_uPtr;
 
 };

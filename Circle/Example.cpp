@@ -10,7 +10,7 @@ public:
 	std::condition_variable threadCv;
 	std::condition_variable threadCompletedCv; // for completed and waitForCompletion
 	std::mutex threadMutex;
-	bool start = false;
+	bool start = false;  // controlled with threadCv
 	bool completed = false;
 	bool forceEnd = false;
 	uint32_t startIndex = 0;
@@ -20,7 +20,7 @@ public:
 	bool startProcessing()
 	{
 		std::unique_lock<std::mutex> lk(threadMutex);
-		if ((startIndex > endIndex) || (startIndex >= endIndex))
+		if (startIndex > endIndex)
 		{
 			std::cerr << "Invalid start argument: start: " << std::to_string(startIndex) << " end:" << std::to_string(endIndex) << std::endl;
 			return false;
@@ -34,7 +34,7 @@ public:
 	{
 		std::unique_lock<std::mutex> lk(threadMutex);
 		threadCompletedCv.wait(lk, [&] {return (completed == true || forceEnd == true); });
-		return completed == false;
+		return completed == true;
 	}
 };
 
