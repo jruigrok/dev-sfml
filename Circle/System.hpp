@@ -14,7 +14,7 @@ public:
 	void updatePos() {
 		for (uint32_t i = 0; i < subSteps; i++) {
 			grid.fillGrid();
-			grid.searchGrid();
+			grid.searchGrid(1,grid.getWidth() - 2);
 			update();
 		}
 		grid.makeVAs();
@@ -47,18 +47,44 @@ public:
 				}
 			}
 		}
-	}
+	}*/
 
-	void makeRope(float x, float y, uint32_t length, float rigigity) {
+	/*void makeRope(float x, float y, uint32_t length, uint32_t cellSize, float rigigity) {
 		Circle c({ { x, y }, { 0,0 } });
+		c.holdPos = 1;
 		grid.addElementToGrid(c);
-		pins.push_back({ grid.size() - 1, { x, y } });
 		for (uint32_t i = 1; i < length; i++) {
-			Circle c({ { x, y + i * grid.cellSize }, { 0,0 } });
+			Circle c({ { x, y + i * cellSize }, { 0,0 } });
 			grid.addElementToGrid(c);
-			links.push_back({ grid.size() - 1, grid.size() - 2, grid.cellSize, rigigity });
+			grid.links.push_back({ grid.size() - 1, grid.size() - 2, cellSize, rigigity });
 		}
 	}*/
+
+	void makeBoarder(uint32_t cellSize) {
+		Circle c({ { cellSize / 2.0f, cellSize / 2.0f }, {0,0} });
+		c.holdPos = true;
+		for (uint32_t i = 0; i < grid.getWidth(); i++) {
+			grid.addElementToGrid(c);
+			c.pos.x += cellSize;
+		}
+		c.pos = { cellSize / 2.0f ,grid.getHeight() * cellSize - cellSize / 2.0f };
+		for (uint32_t i = 0; i < grid.getWidth(); i++) {
+			grid.addElementToGrid(c);
+			c.pos.x += cellSize;
+		}
+		c.pos = { cellSize * 2.0f ,cellSize * 1.5f };
+
+		for (uint32_t i = 0; i < grid.getHeight() - 2; i++) {
+			grid.addElementToGrid(c);
+			c.pos.y += cellSize;
+		}
+		c.pos = { grid.getWidth() * cellSize - cellSize * 2.0f ,cellSize * 1.5f };
+
+		for (uint32_t i = 0; i < grid.getHeight() - 2; i++) {
+			grid.addElementToGrid(c);
+			c.pos.y += cellSize;
+		}
+	}
 
 
 private:

@@ -7,6 +7,7 @@ class Circle
 {
 public:
 	sf::Vector2f pos;
+	bool holdPos = false;
 
 	Circle(sf::Vector2f Pos, sf::Vector2f v)
 		:
@@ -14,9 +15,11 @@ public:
 		oldPos(Pos - v) {};
 
 	void updatePos(float dt) {
-		sf::Vector2f v = pos - oldPos;
-		oldPos = pos;
-		pos += v + a * dt * dt;
+		if (!holdPos) {
+			sf::Vector2f v = pos - oldPos;
+			oldPos = pos;
+			pos += v + a * dt * dt;
+		}
 		a = { 0,0 };
 	}
 

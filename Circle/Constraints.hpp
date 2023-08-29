@@ -36,21 +36,3 @@ private:
 	const uint64_t idx1;
 	const uint64_t idx2;
 };
-
-class Pin
-{
-public:
-
-	Pin(uint64_t idx_, sf::Vector2f pos_) :
-		idx(idx_), pos(pos_)
-	{};
-
-	void update(std::vector<Circle>& circles) {
-		Circle& ob = circles[idx];
-		ob.pos = pos;
-	}
-
-private:
-	sf::Vector2f pos;
-	uint64_t idx;
-};

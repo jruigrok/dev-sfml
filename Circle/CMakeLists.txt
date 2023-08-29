@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 # Set project name and version
-project(SFMLCircle VERSION 0.1)
+project(SFMLPhysics VERSION 0.1)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 11)
@@ -24,7 +24,7 @@ find_package(SFML 2.5
   )
 
 # Compile executable
-add_executable(SFMLCircle main.cpp)
+add_executable(SFMLCircle main.cpp Example.cpp)
 
 #Define base directory for artifacts
 
@@ -47,4 +47,3 @@ target_link_libraries(SFMLCircle sfml-graphics)
 
 # Install target
 install(TARGETS SFMLCircle DESTINATION bin)
-

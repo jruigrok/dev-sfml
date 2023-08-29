@@ -77,10 +77,10 @@ public:
 		}
 	}
 
-	void searchGrid() {
-		const uint32_t x = width - 2;
+	void searchGrid(uint32_t startIdx, uint32_t endIdx) {
+		//const uint32_t x = width - 2;
 		const uint32_t y = height - 2;
-		for (uint32_t i = x; i > 1; i--) {
+		for (uint32_t i = endIdx; i > startIdx; i--) {
 			for (uint32_t j = y; j > 1; j--) {
 				const uint32_t v1l = gridL[i][j];
 				if (v1l != 0) {
@@ -138,10 +138,6 @@ public:
 		for (uint32_t i = 0; i < links.size(); i++) {
 			links[i].update(circles);
 		}
-
-		for (uint32_t i = 0; i < pins.size(); i++) {
-			pins[i].update(circles);
-		}
 	}
 
 	void addElementToGrid(T& element)
@@ -167,6 +163,13 @@ public:
 		window.draw(objectVA, states);
 	}
 
+	uint32_t getWidth() {
+		return width;
+	}
+	uint32_t getHeight() {
+		return height;
+	}
+
 private:
 
 	void collide(uint32_t v1[], uint32_t v2[], uint32_t v1l, uint32_t v2l) {
@@ -185,8 +188,8 @@ private:
 							const float d = sqrt(d2);
 							float delta = response_coef * 0.5f * (d - cellSize);
 							const sf::Vector2f dir = d3 / d;
-							ob1->pos += delta * dir;
-							ob2->pos += -delta * dir;
+							ob1->pos += delta * (1 + ob2->holdPos) * !ob1->holdPos * dir;
+							ob2->pos += -delta * (1 + ob1->holdPos) * !ob2->holdPos * dir;
 						}
 					}
 				}
@@ -203,7 +206,6 @@ private:
 	uint32_t** gridL;
 	std::vector<T> circles;
 	std::vector <Link> links;
-	std::vector <Pin> pins;
-	sf::VertexArray objectVA{ sf::Quads, 80000 };
+	sf::VertexArray objectVA{ sf::Quads, 160000 };
 
 };
