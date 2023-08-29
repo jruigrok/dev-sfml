@@ -8,10 +8,9 @@
 
 
 int main(int argc, char* argv[]) {
-    const uint32_t width = 400;
+    const uint32_t width = 402;
     const uint32_t height = 200;
     const uint32_t cellSize = 4;
-    const uint32_t numElements = 4;
     const uint32_t screenWidth = width * (uint32_t)cellSize;
     const uint32_t screenHeight = height * (uint32_t)cellSize;
     const uint32_t frameLimit = 60;
@@ -39,7 +38,7 @@ int main(int argc, char* argv[]) {
     // Create a window
     sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "SFML works!");
     // Set frame limit
-    window.setFramerateLimit(frameLimit);
+    //window.setFramerateLimit(frameLimit);
     
     
     sf::Font font;
@@ -50,20 +49,15 @@ int main(int argc, char* argv[]) {
     text.setStyle(sf::Text::Bold);
     text.setFillColor(sf::Color::Red);
 
-    Circle c1({ 200,100 }, { 3,0 });
-    
-    /*std::function<void(uint32_t startIndex, uint32_t endIndex)> processingFunction = [&](uint32_t startIndex, uint32_t endIndex) {
-        std::cout << "Processing Function from startIndex:" << std::to_string(startIndex) << " to EndIndex:" << std::to_string(endIndex) << std::endl;
-    };*/
-
+    Circle c1({ 200,500 }, { 1,0 });
 
     std::vector<Link> links;
 
     Grid<Circle> grid(width, height, 5, cellSize);
-
     System system(0.001f, 8, grid, window, states);
 
-    //system.makeBoarder(cellSize);
+
+    system.makeBoarder(cellSize);
 
 
     // Handle closing the window
@@ -78,7 +72,7 @@ int main(int argc, char* argv[]) {
                 }
                 if (Event.key.code == sf::Keyboard::Return) {
                     c1.setPos({ 200,100 });
-                    for (uint32_t i = 0; i < 10; i++) {
+                    for (uint32_t i = 0; i < 50; i++) {
                         c1.movePos({ 0, cellSize });
                         grid.addElementToGrid(c1);
                     }
@@ -91,8 +85,8 @@ int main(int argc, char* argv[]) {
         timing.tick();
         window.clear();
         if (grid.size() < 20000) {
-            c1.setPos({ 200, 100 });
-            for (uint32_t i = 0; i < 100; i++) {
+            c1.setPos({ 200, 500 });
+            for (uint32_t i = 0; i < 25; i++) {
                 //c1.pos += {0, cellSize};
                 c1.movePos({ 0, cellSize });
                 //c1.setVelocity({ 1,0 });

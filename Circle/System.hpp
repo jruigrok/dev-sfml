@@ -14,7 +14,7 @@ public:
 	void updatePos() {
 		for (uint32_t i = 0; i < subSteps; i++) {
 			grid.fillGrid();
-			grid.searchGrid(1,grid.getWidth() - 2);
+			grid.searchGrid(0,grid.getWidth() - 2);
 			update();
 		}
 		grid.makeVAs();
@@ -102,10 +102,10 @@ private:
 	void update() {
 		// apply gravity
 		addGravity(g);
-		grid.handleConstraints();
+		//grid.handleConstraints();
 
 		// update positions
 		grid.updateElPos(dt);
-		grid.boundingBox();
+		//grid.boundingBox();
 	}
 };

@@ -97,7 +97,7 @@ void MultiThreadedProcessing::setElementsPerThread()
 	{
 		// Corner Case
 		threadControl_[0].startIndex = 0;
-		threadControl_[0].endIndex = numElements_ - 1;
+		threadControl_[0].endIndex = numElements_;
 	}
 	else if ((numElements_ % numThreads_) == 0)
 	{
@@ -108,8 +108,8 @@ void MultiThreadedProcessing::setElementsPerThread()
 		for (uint32_t i = 0; i < numThreads_; i++)
 		{
 			threadControl_[i].startIndex = startIndex;
-			threadControl_[i].endIndex = startIndex + numIndexPerThread - 1;
-			startIndex = threadControl_[i].endIndex + 1;
+			threadControl_[i].endIndex = startIndex + numIndexPerThread;
+			startIndex = threadControl_[i].endIndex;
 			//std::cout << "thread index[" << std::to_string(i) << "]  start:" << std::to_string(threadControl_[i].startIndex) << " end: " << std::to_string(threadControl_[i].endIndex) << std::endl;
 		}
 	}
@@ -122,8 +122,8 @@ void MultiThreadedProcessing::setElementsPerThread()
 		for (uint32_t i = 0; i < numThreads_; i++)
 		{
 			threadControl_[i].startIndex = startIndex;
-			threadControl_[i].endIndex = startIndex + numIndexPerThread - 1;
-			startIndex = threadControl_[i].endIndex + 1;
+			threadControl_[i].endIndex = startIndex + numIndexPerThread;
+			startIndex = threadControl_[i].endIndex;
 			//std::cout << "thread index[" << std::to_string(i) << "]  start:" << std::to_string(threadControl_[i].startIndex) << " end: " << std::to_string(threadControl_[i].endIndex) << std::endl;
 		}
 
@@ -136,7 +136,7 @@ void MultiThreadedProcessing::setElementsPerThread()
 
 void MultiThreadedProcessing::processAll()
 {
-	std::unique_lock<std::mutex> lk(interfaceMutex_);
+	//std::unique_lock<std::mutex> lk(interfaceMutex_);
 	if (numElements_ == 0)
 	{
 		return;

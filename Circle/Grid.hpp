@@ -4,7 +4,7 @@
 #include <Examples.hpp>
 #include <functional>
 
-//#define MULTIPROC 1
+#define MULTIPROC 1
 template <class T>
 class Grid
 {
@@ -33,8 +33,8 @@ public:
 		gridProcessingFunction = [&](uint32_t startIndex, uint32_t endIndex) {
 			searchGridProcessing(startIndex, endIndex);
 			};
-		multiProcess_uPtr = std::make_unique<MultiThreadedProcessing>(1, gridProcessingFunction);
-		multiProcess_uPtr->setNumElements(width);
+		multiProcess_uPtr = std::make_unique<MultiThreadedProcessing>(20, gridProcessingFunction);
+		multiProcess_uPtr->setNumElements(width - 2);
 	}
 
 	~Grid()
@@ -87,19 +87,18 @@ public:
 
 	void searchGrid(uint32_t startIdx, uint32_t endIdx) {
 #ifdef MULTIPROC
-		multiProcess_uPtr->setNumElements(endIdx - startIdx);
 		multiProcess_uPtr->processAll();
 #else
-		searchGridProcessing(startIdx, endIdx);
+		searchGridProcessing(0, 200);
+		searchGridProcessing(200, 400);
 #endif
 	}
 
 
 	void searchGridProcessing(uint32_t startIdx, uint32_t endIdx) {
-		//const uint32_t x = width - 2;
 		const uint32_t y = height - 2;
 		for (uint32_t i = endIdx; i > startIdx; i--) {
-			for (uint32_t j = y; j > 1; j--) {
+			for (uint32_t j = y; j > 0; j--) {
 				const uint32_t v1l = gridL[i][j];
 				if (v1l != 0) {
 					uint32_t* v1 = grid[i][j];
@@ -170,11 +169,9 @@ public:
 	}
 
 	void setGravity(sf::Vector2f g) {
-		// Lock
 		for (uint32_t i = 0; i < circles.size(); i++) {
 			circles[i].set_a(g);
 		}
-		// Unlock
 	}
 
 	void drawElements(sf::RenderWindow& window, sf::RenderStates& states) {
@@ -224,7 +221,7 @@ private:
 	uint32_t** gridL;
 	std::vector<T> circles;
 	std::vector <Link> links;
-	sf::VertexArray objectVA{ sf::Quads, 160000 };
+	sf::VertexArray objectVA{ sf::Quads, 640000 };
 
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> gridProcessingFunction;
 	std::unique_ptr<MultiThreadedProcessing> multiProcess_uPtr;
