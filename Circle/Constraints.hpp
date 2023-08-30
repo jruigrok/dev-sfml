@@ -27,8 +27,8 @@ public:
 		const float d = sqrt(axis.x * axis.x + axis.y * axis.y);
 		const sf::Vector2f dir = axis / dist;
 		const float delta = dist - d;
-		ob1.pos += 0.5f * delta * dir * rigigity;
-		ob2.pos -= 0.5f * delta * dir * rigigity;
+		ob1.pos += 0.5f * delta * (1 + ob2.holdPos) * !ob1.holdPos * dir * rigigity;
+		ob2.pos -= 0.5f * delta * (1 + ob1.holdPos) * !ob2.holdPos * dir * rigigity;
 	}
 private:
 	float dist;

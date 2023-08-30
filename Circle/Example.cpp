@@ -28,6 +28,7 @@ public:
 		completed = false;
 		start = true;
 		threadCv.notify_one();
+		return true;
 	}
 
 	bool waitForCompletion()
@@ -86,7 +87,7 @@ bool  MultiThreadedProcessing::setNumElements(uint32_t numElements)
 	std::unique_lock<std::mutex> lk(interfaceMutex_);
 	numElements_ = numElements;
 	// elementsCount_ is for testing only, but it needs to be the same size of numElements_ always
-	elementsCount_.resize(numElements_);
+	// elementsCount_.resize(numElements_);
 	setElementsPerThread();
 	return true;
 }
@@ -115,20 +116,20 @@ void MultiThreadedProcessing::setElementsPerThread()
 	}
 	else
 	{
+
 		uint32_t startIndex = 0;
 		uint32_t numIndexPerThread = numElements_ / (numThreads_);
+		const uint32_t extra = numElements_ % (numThreads_);
 
 		// Use the last thread for the remainder, could be further optimize by splitting the remainder among multiple threads
 		for (uint32_t i = 0; i < numThreads_; i++)
 		{
 			threadControl_[i].startIndex = startIndex;
-			threadControl_[i].endIndex = startIndex + numIndexPerThread;
+			threadControl_[i].endIndex = startIndex + numIndexPerThread + (extra > i);
 			startIndex = threadControl_[i].endIndex;
 			//std::cout << "thread index[" << std::to_string(i) << "]  start:" << std::to_string(threadControl_[i].startIndex) << " end: " << std::to_string(threadControl_[i].endIndex) << std::endl;
 		}
-
-		// Last one, add remainder to last thread			
-		threadControl_[numThreads_ - 1].endIndex += numElements_ % (numThreads_);
+		
 		//std::cout << "thread index[" << std::to_string(numThreads_ - 1) << "]  start:" << std::to_string(threadControl_[numThreads_ - 1].startIndex) << " end: " << std::to_string(threadControl_[numThreads_ - 1].endIndex) << std::endl;
 	}
 }

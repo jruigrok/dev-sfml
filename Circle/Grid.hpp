@@ -4,13 +4,11 @@
 #include <Examples.hpp>
 #include <functional>
 
-#define MULTIPROC 1
-template <class T>
 class Grid
 {
 public:
-	Grid(uint32_t width_, uint32_t height_, uint32_t depth_, float cellSize_)
-		: width(width_), height(height_), depth(depth_), cellSize(cellSize_), radius(cellSize_ / 2.0f)  
+	Grid(uint32_t width_, uint32_t height_, uint32_t depth_, float cellSize_, float dt_)
+		: width(width_), height(height_), depth(depth_), cellSize(cellSize_), radius(cellSize_ / 2.0f), dt(dt_)
 	{
 		// grid allocation (3d array)
 		// when accessing grid,  we will do with  grid[width][height][depth]
@@ -30,11 +28,22 @@ public:
 		{
 			gridL[i] = new uint32_t[height];
 		}
-		gridProcessingFunction = [&](uint32_t startIndex, uint32_t endIndex) {
-			searchGridProcessing(startIndex, endIndex);
-			};
-		multiProcess_uPtr = std::make_unique<MultiThreadedProcessing>(20, gridProcessingFunction);
-		multiProcess_uPtr->setNumElements(width - 2);
+
+		gridProcessingFunction = [&](uint32_t startIdx, uint32_t endIdx) {
+			searchGrid(startIdx, endIdx);
+		};
+		elementProcessingFunction = [&](uint32_t startIdx, uint32_t endIdx) {
+			updateElements(startIdx, endIdx);
+		};
+		VA_ProcessingFunction = [&](uint32_t startIdx, uint32_t endIdx) {
+			makeVAs_MT(startIdx, endIdx);
+		};
+
+		
+		gridMultiThread = std::make_unique<MultiThreadedProcessing>(20, gridProcessingFunction);
+		gridMultiThread->setNumElements(width - 2);
+		elementMultiThread = std::make_unique<MultiThreadedProcessing>(20, elementProcessingFunction);
+		VA_MultiThread = std::make_unique<MultiThreadedProcessing>(20, VA_ProcessingFunction);
 	}
 
 	~Grid()
@@ -62,22 +71,76 @@ public:
 
 	}
 
+	void addElementToGrid(Circle& element) {
+		circles.emplace_back(element);
+	}
+	void addConstraintToGrid(Link& element) {
+		constraints.emplace_back(element);
+	}
 
-	size_t size()
-	{
+	void drawElements(sf::RenderWindow& window, sf::RenderStates& states) {
+		window.draw(objectVA, states);
+	}
+
+	uint32_t getWidth() {
+		return width;
+	}
+	uint32_t getHeight() {
+		return height;
+	}
+	float getCellSize() {
+		return cellSize;
+	}
+
+	size_t size(){
 		return circles.size();
 	}
 
-	void fillGrid() {
-		for (uint32_t i = 0; i < width; i++) {
-			for (uint32_t j = 0; j < height; j++) {
-				gridL[i][j] = 0;
+	void updateGrid() {
+
+		clearGrid();
+
+		elementMultiThread->setNumElements((uint32_t)size());
+		elementMultiThread->processAll();
+
+		// solve collisions
+		gridMultiThread->processAll();
+		handleConstraints();
+	}
+
+	void makeEl_VAs() {
+		const size_t l = size();
+		objectVA.resize(l * 4);
+		VA_MultiThread->setNumElements((uint32_t)size());
+		VA_MultiThread->processAll();
+	}
+
+
+private:
+
+	void updateElements(uint32_t startIdx, uint32_t endIdx) {
+		for (uint32_t i = startIdx; i < endIdx; i++) {
+			Circle& c = circles[i];
+			c.set_a(g);
+			c.updatePos(dt);
+
+			// check boarders
+			if (circles[i].pos.x <= cellSize * boarderBuffer) {
+				circles[i].pos.x = cellSize * boarderBuffer;
 			}
-		}
-		int x, y;
-		for (uint32_t i = 0; i < circles.size(); i++) {
-			x = static_cast<uint32_t> (std::floor(circles[i].pos.x / cellSize));
-			y = static_cast<uint32_t> (std::floor(circles[i].pos.y / cellSize));
+			else if (circles[i].pos.x >= width * cellSize - boarderBuffer * cellSize) {
+				circles[i].pos.x = width * cellSize - boarderBuffer * cellSize;
+			}
+			if (circles[i].pos.y <= cellSize * boarderBuffer) {
+				circles[i].pos.y = cellSize * boarderBuffer;
+			}
+			else if (circles[i].pos.y >= height * cellSize - boarderBuffer * cellSize) {
+				circles[i].pos.y = height * cellSize - boarderBuffer * cellSize;
+			}
+
+			// adds element to grid
+			int x = static_cast<uint32_t> (std::floor(c.pos.x / cellSize));
+			int y = static_cast<uint32_t> (std::floor(c.pos.y / cellSize));
 			if (gridL[x][y] < depth - 1) {
 				grid[x][y][gridL[x][y]] = i;
 				gridL[x][y]++;
@@ -86,16 +149,6 @@ public:
 	}
 
 	void searchGrid(uint32_t startIdx, uint32_t endIdx) {
-#ifdef MULTIPROC
-		multiProcess_uPtr->processAll();
-#else
-		searchGridProcessing(0, 200);
-		searchGridProcessing(200, 400);
-#endif
-	}
-
-
-	void searchGridProcessing(uint32_t startIdx, uint32_t endIdx) {
 		const uint32_t y = height - 2;
 		for (uint32_t i = endIdx; i > startIdx; i--) {
 			for (uint32_t j = y; j > 0; j--) {
@@ -116,28 +169,9 @@ public:
 		}
 	}
 
-
-	void boundingBox() {
-		for (int i = 0; i < circles.size(); i++) {
-			if (circles[i].pos.x <= cellSize * 2.1f) {
-				circles[i].pos.x = cellSize * 2.1f;
-			}
-			if (circles[i].pos.x >= width * cellSize - 2.1f * cellSize) {
-				circles[i].pos.x = width * cellSize - 2.1f * cellSize;
-			}
-			if (circles[i].pos.y <= cellSize * 2.1f) {
-				circles[i].pos.y = cellSize * 2.1f;
-			}
-			if (circles[i].pos.y >= height * cellSize - 2.1f * cellSize) {
-				circles[i].pos.y = height * cellSize - 2.1f * cellSize;
-			}
-		}
-	}
-
-	void makeVAs() {
-		const size_t l = size();
+	void makeVAs_MT(uint32_t startIdx, uint32_t endIdx) {
 		const uint32_t size = 1024;
-		for (uint32_t i = 0; i < l; i++) {
+		for (uint32_t i = startIdx; i < endIdx; i++) {
 			const sf::Vector2f* pos = &circles[i].pos;
 			const uint32_t idx = i << 2;
 			objectVA[idx + 0].position = circles[i].pos + sf::Vector2f(-radius, -radius);
@@ -151,41 +185,24 @@ public:
 		}
 	}
 
-	void handleConstraints() {
-		for (uint32_t i = 0; i < links.size(); i++) {
-			links[i].update(circles);
+	void clearGrid() {
+		for (uint32_t i = 0; i < width; i++) {
+			for (uint32_t j = 0; j < height; j++) {
+				gridL[i][j] = 0;
+			}
 		}
 	}
 
-	void addElementToGrid(T& element)
-	{
-		circles.emplace_back(element);
-	}
-
-	void updateElPos(float dt) {
-		for (uint32_t i = 0; i < circles.size(); i++) {
-			circles[i].updatePos(dt);
+	void fillGrid(uint32_t startIdx, uint32_t endIdx) {
+		for (uint32_t i = startIdx; i < endIdx; i++) {
+			int x = static_cast<uint32_t> (std::floor(circles[i].pos.x / cellSize));
+			int y = static_cast<uint32_t> (std::floor(circles[i].pos.y / cellSize));
+			if (gridL[x][y] < depth - 1) {
+				grid[x][y][gridL[x][y]] = i;
+				gridL[x][y]++;
+			}
 		}
 	}
-
-	void setGravity(sf::Vector2f g) {
-		for (uint32_t i = 0; i < circles.size(); i++) {
-			circles[i].set_a(g);
-		}
-	}
-
-	void drawElements(sf::RenderWindow& window, sf::RenderStates& states) {
-		window.draw(objectVA, states);
-	}
-
-	uint32_t getWidth() {
-		return width;
-	}
-	uint32_t getHeight() {
-		return height;
-	}
-
-private:
 
 	void collide(uint32_t v1[], uint32_t v2[], uint32_t v1l, uint32_t v2l) {
 		if (v2l == 0) {
@@ -199,7 +216,7 @@ private:
 						Circle* ob2 = &circles[v2[j]];
 						const sf::Vector2f d3 = ob2->pos - ob1->pos;
 						const float d2 = d3.x * d3.x + d3.y * d3.y;
-						if (d2 < cellSize * cellSize && d2 != 0) {
+						if (d2 < cellSize * cellSize && d2 > 0.001f) {
 							const float d = sqrt(d2);
 							float delta = response_coef * 0.5f * (d - cellSize);
 							const sf::Vector2f dir = d3 / d;
@@ -211,19 +228,31 @@ private:
 			}
 		}
 	}
+
+	void handleConstraints() {
+		for (uint32_t i = 0; i < constraints.size(); i++) {
+			constraints[i].update(circles);
+		}
+	}
+
 	const float response_coef = 1.0f;
 	const float radius;
 	const float cellSize;
+	const float boarderBuffer = 2.1f;
+	float dt;
 	uint32_t width;
 	uint32_t height;
 	uint32_t depth;
 	uint32_t*** grid;
 	uint32_t** gridL;
-	std::vector<T> circles;
-	std::vector <Link> links;
-	sf::VertexArray objectVA{ sf::Quads, 640000 };
-
+	sf::Vector2f g = { 0, 1000.0f };
+	std::vector<Circle> circles;
+	std::vector <Link> constraints;
+	sf::VertexArray objectVA{ sf::Quads };
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> gridProcessingFunction;
-	std::unique_ptr<MultiThreadedProcessing> multiProcess_uPtr;
-
+	std::function<void(uint32_t startIndex, uint32_t endIndex)> elementProcessingFunction;
+	std::function<void(uint32_t startIndex, uint32_t endIndex)> VA_ProcessingFunction;
+	std::unique_ptr<MultiThreadedProcessing> gridMultiThread;
+	std::unique_ptr<MultiThreadedProcessing> elementMultiThread;
+	std::unique_ptr<MultiThreadedProcessing> VA_MultiThread;
 };
