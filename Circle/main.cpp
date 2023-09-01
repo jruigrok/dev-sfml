@@ -1,9 +1,10 @@
 #include "config.h"
 #include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window.hpp>
 #include <iostream>
 #include <Timing.hpp>
 #include <System.hpp>
-#include <Examples.hpp>
+#include <ViewPort.hpp>
 #include <functional>
 
 
@@ -17,33 +18,46 @@ int main(int argc, char* argv[]) {
     const uint32_t screenWidth = width * (uint32_t)cellSize;
     const uint32_t screenHeight = height * (uint32_t)cellSize;
     const uint32_t frameLimit = 60;
-
-
-    std::string circlePngFilepath = std::string(ARTIFACTS_PATH) + "circle.png";
-
     sf::Vector2i mouse;
     sf::Texture circleImg;
+    sf::RenderStates states;
+    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "Window");
+    ViewPort viewPort(states, {0,0}, 1);
+
+    cout << "Version: " << PROJECT_VERSION_MAJOR << "." << PROJECT_VERSION_MINOR << endl;
+    std::string circlePngFilepath = std::string(ARTIFACTS_PATH) + "circle.png";
+
+    
     if (!circleImg.loadFromFile(circlePngFilepath)) {
         throw std::runtime_error("Error file not found " + circlePngFilepath);
     }
     circleImg.setSmooth(true);
     circleImg.generateMipmap();
 
-    sf::RenderStates states;
+    
     states.texture = &circleImg;
+    
     
     Timing timing;
     // Create a window
-    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "SFML works!");
+    
     // Set frame limit
     window.setFramerateLimit(frameLimit);
-     
+    
     //sf::Font font;
     //font.loadFromFile(std::string(ARTIFACTS_PATH) + "Fonts/arial.ttf");
 
-    Circle c1({ 200,100 }, { 0.1f,1 });
+    
+    /*camara.move({100,100});
+    camara.zoom(2);
+    camara.move({ 100,100 });
+    camara.zoom(0.5);
 
-    std::vector<Link> links;
+    cout << camara.pos.x << endl;*/
+    //camara.move({ 100,100 });
+    //camara.move({ 100,100 });
+
+    Circle c1({ 200,100 }, { 0.1f,1 });
 
     Grid grid(width, height, depth, cellSize, dt);
     System system(subSteps, grid, window, states);
@@ -61,17 +75,19 @@ int main(int argc, char* argv[]) {
                 if (Event.key.code == sf::Keyboard::Escape) {
                     window.close();
                 }
-                if (Event.key.code == sf::Keyboard::Return) {
+                /*if (Event.key.code == sf::Keyboard::Return) {
                     c1.setPos({ width * cellSize / 2, 20 });
                     for (uint32_t i = 0; i < 25; i++) {
                         c1.movePos({ cellSize, 0 });
                         grid.addElementToGrid(c1);
                     }
-                }
+                }*/
                 if (Event.key.code == sf::Keyboard::Q) {
                     cout << "objs: " << grid.size() << endl;
                 }
+                
             }
+            viewPort.handleEvents(Event);
         }
         timing.tick();
         window.clear();

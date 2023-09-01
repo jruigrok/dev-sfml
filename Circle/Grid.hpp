@@ -1,8 +1,9 @@
 #pragma once
 #include <Constraints.hpp>
 #include <memory>
-#include <Examples.hpp>
+#include <MultiThread.hpp>
 #include <functional>
+
 
 class Grid
 {
@@ -39,12 +40,12 @@ public:
 			makeVAs_MT(startIdx, endIdx);
 		};
 
-		
+
 		gridMultiThread = std::make_unique<MultiThreadedProcessing>(20, gridProcessingFunction);
 		gridMultiThread->setNumElements(width - 2);
 		elementMultiThread = std::make_unique<MultiThreadedProcessing>(20, elementProcessingFunction);
 		VA_MultiThread = std::make_unique<MultiThreadedProcessing>(20, VA_ProcessingFunction);
-	}
+	};
 
 	~Grid()
 	{

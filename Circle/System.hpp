@@ -1,5 +1,7 @@
 #pragma once
 #include <Grid.hpp>
+#include <SFML/Window/Event.hpp>
+#include <iostream>
 
 class System {
 public:
@@ -88,6 +90,7 @@ public:
 		}
 	}
 
+	
 
 private:
 	uint32_t subSteps;
