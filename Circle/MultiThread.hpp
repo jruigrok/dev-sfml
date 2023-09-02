@@ -24,7 +24,7 @@ public:
 private:
 	void threadFunction(ThreadControl& data);
 	void setElementsPerThread();
-	std::vector<uint32_t> elementsCount_;
+	//std::vector<uint32_t> elementsCount_;
 	std::unique_ptr<ThreadControl[]> threadControl_;
 	std::vector<std::thread> threads_;
 	uint32_t numElements_ = 1;

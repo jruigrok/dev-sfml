@@ -4,15 +4,12 @@
 #include <MultiThread.hpp>
 #include <functional>
 
-
 class Grid
 {
 public:
 	Grid(uint32_t width_, uint32_t height_, uint32_t depth_, float cellSize_, float dt_)
 		: width(width_), height(height_), depth(depth_), cellSize(cellSize_), radius(cellSize_ / 2.0f), dt(dt_)
 	{
-		// grid allocation (3d array)
-		// when accessing grid,  we will do with  grid[width][height][depth]
 		grid = new uint32_t * *[width];
 		for (uint32_t i = 0; i < width; i++)
 		{
@@ -37,7 +34,7 @@ public:
 			updateElements(startIdx, endIdx);
 		};
 		VA_ProcessingFunction = [&](uint32_t startIdx, uint32_t endIdx) {
-			makeVAs_MT(startIdx, endIdx);
+			makeElVAs_MT(startIdx, endIdx);
 		};
 
 
@@ -45,6 +42,7 @@ public:
 		gridMultiThread->setNumElements(width - 2);
 		elementMultiThread = std::make_unique<MultiThreadedProcessing>(20, elementProcessingFunction);
 		VA_MultiThread = std::make_unique<MultiThreadedProcessing>(20, VA_ProcessingFunction);
+		makeBoaderVA();
 	};
 
 	~Grid()
@@ -73,14 +71,19 @@ public:
 	}
 
 	void addElementToGrid(Circle& element) {
-		circles.emplace_back(element);
+		circles.push_back(element);
 	}
 	void addConstraintToGrid(Link& element) {
-		constraints.emplace_back(element);
+		constraints.push_back(element);
 	}
 
 	void drawElements(sf::RenderWindow& window, sf::RenderStates& states) {
+		
 		window.draw(objectVA, states);
+	}
+
+	void drawBoarder(sf::RenderWindow& window, sf::RenderStates& states) {
+		window.draw(boaderVA, states);
 	}
 
 	uint32_t getWidth() {
@@ -95,6 +98,26 @@ public:
 
 	size_t size(){
 		return circles.size();
+	}
+
+	bool inBoarder(sf::Vector2f pos) {
+		float buffer = boarderBuffer * cellSize - radius;
+		return (pos.x - buffer >= 0 && pos.y - buffer >= 0 && pos.x + buffer < width * cellSize && pos.y + buffer < height * cellSize);
+	}
+
+	sf::Vector2i getGridPos(sf::Vector2f pos) {
+		return { static_cast<int> (std::floor(pos.x / cellSize)), 
+			static_cast<int> (std::floor(pos.y / cellSize)) };
+	}
+
+	uint32_t getLength(sf::Vector2i pos) {
+		if (pos.x >= 0 && pos.y >= 0 && pos.x < (int)width && pos.y < (int)height) {
+			return gridL[pos.x][pos.y];
+		}
+		else {
+			throw std::runtime_error("Out of bounds");
+		}
+		
 	}
 
 	void updateGrid() {
@@ -112,7 +135,7 @@ public:
 	void makeEl_VAs() {
 		const size_t l = size();
 		objectVA.resize(l * 4);
-		VA_MultiThread->setNumElements((uint32_t)size());
+		VA_MultiThread->setNumElements((uint32_t)l);
 		VA_MultiThread->processAll();
 	}
 
@@ -146,6 +169,9 @@ private:
 				grid[x][y][gridL[x][y]] = i;
 				gridL[x][y]++;
 			}
+			else {
+				cout << "bad" << endl;
+			}
 		}
 	}
 
@@ -170,7 +196,7 @@ private:
 		}
 	}
 
-	void makeVAs_MT(uint32_t startIdx, uint32_t endIdx) {
+	void makeElVAs_MT(uint32_t startIdx, uint32_t endIdx) {
 		const uint32_t size = 1024;
 		for (uint32_t i = startIdx; i < endIdx; i++) {
 			const sf::Vector2f* pos = &circles[i].pos;
@@ -236,10 +262,24 @@ private:
 		}
 	}
 
+	void makeBoaderVA() {
+		float buffer = boarderBuffer * cellSize - radius;
+		boaderVA[0].position = { buffer , buffer };
+		boaderVA[1].position = { width * cellSize - buffer, buffer };
+		boaderVA[2].position = { width * cellSize - buffer, height * cellSize - buffer };
+		boaderVA[3].position = { buffer , height * cellSize - buffer };
+		boaderVA[4].position = { buffer , buffer };
+		boaderVA[0].color = sf::Color::Red;
+		boaderVA[1].color = sf::Color::Red;
+		boaderVA[2].color = sf::Color::Red;
+		boaderVA[3].color = sf::Color::Red;
+		boaderVA[4].color = sf::Color::Red;
+	}
+
 	const float response_coef = 1.0f;
 	const float radius;
 	const float cellSize;
-	const float boarderBuffer = 2.1f;
+	const float boarderBuffer = 2.0f;
 	float dt;
 	uint32_t width;
 	uint32_t height;
@@ -249,7 +289,8 @@ private:
 	sf::Vector2f g = { 0, 1000.0f };
 	std::vector<Circle> circles;
 	std::vector <Link> constraints;
-	sf::VertexArray objectVA{ sf::Quads };
+	sf::VertexArray objectVA { sf::Quads };
+	sf::VertexArray boaderVA { sf::LineStrip, 5 };
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> gridProcessingFunction;
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> elementProcessingFunction;
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> VA_ProcessingFunction;

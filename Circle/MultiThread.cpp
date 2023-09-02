@@ -45,7 +45,7 @@ uint32_t ThreadControl::currentId;
 MultiThreadedProcessing::MultiThreadedProcessing(uint32_t numThreads, std::function<void(uint32_t startIndex, uint32_t endIndex)> function) :numElements_(0), numThreads_(numThreads), processingFunction_(function)
 {
 	// To start, there will be 0 elements until setNumElements is called.
-	elementsCount_.resize(numElements_);
+	//elementsCount_.resize(numElements_);
 	threadControl_ = std::unique_ptr<ThreadControl[]>(new ThreadControl[numThreads_]);
 	setElementsPerThread();
 	
@@ -75,7 +75,7 @@ MultiThreadedProcessing::~MultiThreadedProcessing()
 
 bool  MultiThreadedProcessing::setNumElements(uint32_t numElements)
 {
-	if (numElements == 0)
+	/*if (numElements == 0)
 	{
 		return false;
 	}
@@ -83,7 +83,7 @@ bool  MultiThreadedProcessing::setNumElements(uint32_t numElements)
 	{
 		std::cerr << "Invalid configuration, num Elements too small for numThreads" << std::endl;
 		return false;
-	}
+	}*/
 	std::unique_lock<std::mutex> lk(interfaceMutex_);
 	numElements_ = numElements;
 	// elementsCount_ is for testing only, but it needs to be the same size of numElements_ always
