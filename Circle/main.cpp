@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     System system(subSteps, grid, window, viewPort);
 
     system.makeRope(100, 100, 10, 0.9f);
-    system.makeRigidBody(200, 500, 10, 15, 0.5f);
+    //system.makeRigidBody(200, 500, 10, 15, 0.5f);
     //system.makeBoarder(cellSize);
     // Handle closing the window
     while(window.isOpen()) {
@@ -77,13 +77,14 @@ int main(int argc, char* argv[]) {
         }
         timing.tick();
         window.clear();
-        /*if (grid.size() < 200000) {
+        system.handleInputs();
+        if (grid.size() < 200000) {
             c1.setPos({ width * cellSize / 2, 20 });
             for (uint32_t i = 0; i < 100; i++) {
                 c1.movePos({ cellSize, 0 });
                 grid.addElementToGrid(c1);
             }
-        }*/
+        }
         system.updatePos();
         system.drawFrame();
         window.display();

@@ -95,14 +95,14 @@ public:
 	void handleEvents(sf::Event& event) {
 		if (event.type == sf::Event::MouseWheelMoved) {
 			if (event.mouseWheel.delta < 0) {
-				viewPort.zoomOnPoint(scrollZoomMag, { (float)event.mouseWheel.x, (float)event.mouseWheel.y });
+				viewPort.zoomOnPoint(scrollZoomMag, (sf::Vector2f)mousePos);
 			}
 			else {
-				viewPort.zoomOnPoint(1.0f / scrollZoomMag, { (float)event.mouseWheel.x, (float)event.mouseWheel.y });
+				viewPort.zoomOnPoint(1.0f / scrollZoomMag, (sf::Vector2f)mousePos);
 			}
 		}
 		else if (event.type == sf::Event::MouseButtonPressed) {
-			sf::Vector2f truePos = viewPort.getTruePos({ (float)event.mouseButton.x, (float)event.mouseButton.y });
+			sf::Vector2f truePos = viewPort.getTruePos((sf::Vector2f)mousePos);
 			if (grid.inBoarder(truePos)) {
 				anchorPos = truePos;
 			}
@@ -111,9 +111,29 @@ public:
 		else if (event.type == sf::Event::MouseButtonReleased) {
 			mouseDown = false;
 		}
-		else if (event.type == sf::Event::MouseMoved && mouseDown) {
+		else if (event.type == sf::Event::KeyPressed) {
+			switch (event.key.code) {
+			case 26:
+				mode = 0;
+				break;
+			case 27:
+				mode = 1;
+				break;
+			case 28:
+				mode = 2;
+				break;
+			}
+		}
+		if (event.type == sf::Event::MouseMoved) {
+			mousePos.x = event.mouseMove.x;
+			mousePos.y = event.mouseMove.y;
+		}
+		
+	}
 
-			sf::Vector2f truePos = viewPort.getTruePos({ (float)event.mouseMove.x, (float)event.mouseMove.y });
+	void handleInputs() {
+		if (mouseDown) {
+			sf::Vector2f truePos = viewPort.getTruePos((sf::Vector2f)mousePos);
 
 			if (grid.inBoarder(truePos)) {
 
@@ -130,21 +150,12 @@ public:
 					}
 					break;
 				case 2:
+					//if (grid.getLength(grid.getGridPos(truePos)) == 0) {
+					Circle c({ gridPos * grid.getCellSize(), {0.1f,1} });
+					grid.addElementToGrid(c);
+					//}
 					break;
 				}
-			}
-		}
-		else if (event.type == sf::Event::KeyPressed) {
-			switch (event.key.code) {
-			case 26:
-				mode = 0;
-				break;
-			case 27:
-				mode = 1;
-				break;
-			case 28:
-				mode = 2;
-				break;
 			}
 		}
 	}
@@ -153,8 +164,6 @@ public:
 
 private:
 	
-
-
 	uint32_t subSteps;
 	Grid& grid;
 	sf::RenderWindow& window;
@@ -164,4 +173,5 @@ private:
 	bool mouseDown = false;
 	uint32_t mode = 0;
 	sf::Vector2f anchorPos = { 0,0 };
+	sf::Vector2i mousePos = { 0,0 };
 };

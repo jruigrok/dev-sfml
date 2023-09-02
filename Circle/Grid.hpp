@@ -169,9 +169,6 @@ private:
 				grid[x][y][gridL[x][y]] = i;
 				gridL[x][y]++;
 			}
-			else {
-				cout << "bad" << endl;
-			}
 		}
 	}
 
