@@ -7,9 +7,11 @@
 class ViewPort {
 public:
 	ViewPort(sf::RenderStates& states_, sf::RenderStates& objectStates_, sf::Vector2f pos_, float zoom_) : 
-		states(states_), objectStates(objectStates_), pos(pos_), scale(zoom_) {
-		transform.translate(pos_);
-		transform.scale(zoom_, zoom_);
+		states(states_), objectStates(objectStates_) {
+		zoom(zoom_);
+		move(pos_);
+		//transform.translate(pos_);
+		//transform.scale(zoom_, zoom_);
 	};
 
 	void updateStates(sf::Transform& transform) {
@@ -55,6 +57,6 @@ public:
 private:
 	
 	sf::Transform transform;
-	sf::Vector2f pos;
-	float scale;
+	sf::Vector2f pos = { 0,0 };
+	float scale = 1;
 };

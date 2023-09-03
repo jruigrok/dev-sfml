@@ -95,6 +95,13 @@ public:
 	float getCellSize() {
 		return cellSize;
 	}
+	float getDt() {
+		return dt;
+	}
+
+	void setDt(float dt_) {
+		dt = dt_;
+	}
 
 	size_t size(){
 		return circles.size();
@@ -134,7 +141,7 @@ public:
 
 	void makeEl_VAs() {
 		const size_t l = size();
-		objectVA.resize(l * 4);
+		//objectVA.resize(l * 4);
 		VA_MultiThread->setNumElements((uint32_t)l);
 		VA_MultiThread->processAll();
 	}
@@ -286,7 +293,7 @@ private:
 	sf::Vector2f g = { 0, 1000.0f };
 	std::vector<Circle> circles;
 	std::vector <Link> constraints;
-	sf::VertexArray objectVA { sf::Quads };
+	sf::VertexArray objectVA { sf::Quads, 1000000 };
 	sf::VertexArray boaderVA { sf::LineStrip, 5 };
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> gridProcessingFunction;
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> elementProcessingFunction;

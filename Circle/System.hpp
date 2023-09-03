@@ -14,15 +14,21 @@ public:
 	{};
 
 	void updatePos() {
-		for (uint32_t i = 0; i < subSteps; i++) {
-			grid.updateGrid();
+		if (!pause) {
+			for (uint32_t i = 0; i < subSteps; i++) {
+				grid.updateGrid();
+			}
+			grid.makeEl_VAs();
 		}
-		grid.makeEl_VAs();
 	}
 
 	void drawFrame() {
 		grid.drawElements(window, viewPort.objectStates);
 		grid.drawBoarder(window, viewPort.states);
+	}
+
+	bool isPaused() {
+		return pause;
 	}
 
 	void makeRigidBody(float x, float y, uint32_t width, uint32_t height, float rigigity) {
@@ -66,6 +72,18 @@ public:
 		}
 	}
 
+	void makeRect(uint32_t width, uint32_t height, Circle& c_) {
+		Circle c = c_;
+		for (uint32_t i = 0; i < width; i++) {
+			for (uint32_t j = 0; j < height; j++) {
+				c_.movePos({ 0,grid.getCellSize() });
+				grid.addElementToGrid(c_);
+			}
+			c_.movePos({ grid.getCellSize() , grid.getCellSize() * height * -1 });
+		}
+		c_ = c;
+	}
+
 	void makeBoarder(uint32_t cellSize) {
 		Circle c({ { cellSize / 2.0f, cellSize / 2.0f }, {0,0} });
 		c.holdPos = true;
@@ -103,9 +121,7 @@ public:
 		}
 		else if (event.type == sf::Event::MouseButtonPressed) {
 			sf::Vector2f truePos = viewPort.getTruePos((sf::Vector2f)mousePos);
-			if (grid.inBoarder(truePos)) {
-				anchorPos = truePos;
-			}
+			anchorPos = truePos;
 			mouseDown = true;
 		}
 		else if (event.type == sf::Event::MouseButtonReleased) {
@@ -122,11 +138,24 @@ public:
 			case 28:
 				mode = 2;
 				break;
+			case 15:
+				pause = !pause;
+				break;
+			case 73:
+				grid.setDt(grid.getDt() * 1 / 0.9f);
+				break;
+			case 74:
+				grid.setDt(grid.getDt() * 0.9f);
+				break;
 			}
 		}
-		if (event.type == sf::Event::MouseMoved) {
+		else if (event.type == sf::Event::MouseMoved) {
 			mousePos.x = event.mouseMove.x;
 			mousePos.y = event.mouseMove.y;
+		}
+		else if (event.type == sf::Event::Resized) {
+			sf::FloatRect view(0, 0, (float)event.size.width, (float)event.size.height);
+			window.setView(sf::View(view));
 		}
 		
 	}
@@ -134,29 +163,26 @@ public:
 	void handleInputs() {
 		if (mouseDown) {
 			sf::Vector2f truePos = viewPort.getTruePos((sf::Vector2f)mousePos);
-
-			if (grid.inBoarder(truePos)) {
-
-				sf::Vector2f gridPos = (sf::Vector2f)grid.getGridPos(truePos);
-				switch (mode) {
-				case 0:
-					viewPort.move((truePos - anchorPos) * viewPort.getScale());
-					break;
-				case 1:
-					if (grid.getLength(grid.getGridPos(truePos)) == 0) {
-						Circle c({ gridPos * grid.getCellSize(), {0,0} });
-						c.holdPos = true;
-						grid.addElementToGrid(c);
-					}
-					break;
-				case 2:
-					//if (grid.getLength(grid.getGridPos(truePos)) == 0) {
+			sf::Vector2f gridPos = (sf::Vector2f)grid.getGridPos(truePos);
+			switch (mode) {
+			case 0:
+				viewPort.move((truePos - anchorPos) * viewPort.getScale());
+				break;
+			case 1:
+				if (grid.inBoarder(truePos) && grid.getLength(grid.getGridPos(truePos)) == 0) {
+					Circle c({ gridPos * grid.getCellSize(), {0,0} });
+					c.holdPos = true;
+					grid.addElementToGrid(c);
+				}
+				break;
+			case 2:
+				if (grid.inBoarder(truePos)) {
 					Circle c({ gridPos * grid.getCellSize(), {0.1f,1} });
 					grid.addElementToGrid(c);
-					//}
 					break;
 				}
 			}
+
 		}
 	}
 
@@ -168,9 +194,9 @@ private:
 	Grid& grid;
 	sf::RenderWindow& window;
 	ViewPort& viewPort;
-
 	float scrollZoomMag = 0.8f;
 	bool mouseDown = false;
+	bool pause = false;
 	uint32_t mode = 0;
 	sf::Vector2f anchorPos = { 0,0 };
 	sf::Vector2i mousePos = { 0,0 };

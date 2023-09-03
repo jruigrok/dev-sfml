@@ -8,21 +8,21 @@
 
 
 int main(int argc, char* argv[]) {
-    const uint32_t width = 600;
+    const uint32_t width = 1800;
     const uint32_t height = 280;
     const uint32_t depth = 6;
     const uint32_t cellSize = 3;
     const float dt = 0.001f;
     const uint32_t subSteps = 4;
-    const uint32_t screenWidth = width * (uint32_t)cellSize;
-    const uint32_t screenHeight = height * (uint32_t)cellSize;
+    const uint32_t screenWidth = 1980 / 2;
+    const uint32_t screenHeight = 1080 / 2;
     const uint32_t frameLimit = 60;
     sf::Vector2i mouse;
     sf::Texture circleImg;
     sf::RenderStates objectStates;
     sf::RenderStates states;
     sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "Window");
-    ViewPort viewPort(states ,objectStates, {0,0}, 1);
+    ViewPort viewPort(states ,objectStates, {-500,0}, 0.5);
 
     std::string circlePngFilepath = std::string(ARTIFACTS_PATH) + "circle.png";
 
@@ -42,13 +42,15 @@ int main(int argc, char* argv[]) {
     //sf::Font font;
     //font.loadFromFile(std::string(ARTIFACTS_PATH) + "Fonts/arial.ttf");
 
-
+    Circle c({ 200,650 }, { -0.1f,1 });
     Circle c1({ 200,100 }, { -0.1f,1 });
 
     Grid grid(width, height, depth, cellSize, dt);
     System system(subSteps, grid, window, viewPort);
 
-    system.makeRope(100, 100, 10, 0.9f);
+    //system.makeRect(50, 50, c);
+
+    //system.makeRope(100, 100, 10, 0.9f);
     //system.makeRigidBody(200, 500, 10, 15, 0.5f);
     //system.makeBoarder(cellSize);
     // Handle closing the window
@@ -61,13 +63,6 @@ int main(int argc, char* argv[]) {
                 if (Event.key.code == sf::Keyboard::Escape) {
                     window.close();
                 }
-                /*if (Event.key.code == sf::Keyboard::Return) {
-                    c1.setPos({ width * cellSize / 2, 20 });
-                    for (uint32_t i = 0; i < 25; i++) {
-                        c1.movePos({ cellSize, 0 });
-                        grid.addElementToGrid(c1);
-                    }
-                }*/
                 if (Event.key.code == sf::Keyboard::Q) {
                     cout << "objs: " << grid.size() << endl;
                 }
@@ -78,7 +73,7 @@ int main(int argc, char* argv[]) {
         timing.tick();
         window.clear();
         system.handleInputs();
-        if (grid.size() < 200000) {
+        if (grid.size() < 200000 && !system.isPaused()) {
             c1.setPos({ width * cellSize / 2, 20 });
             for (uint32_t i = 0; i < 100; i++) {
                 c1.movePos({ cellSize, 0 });

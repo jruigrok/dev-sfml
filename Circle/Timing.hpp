@@ -12,8 +12,7 @@ class Timing
 {
 public:
 	Timing():runThread(&Timing::threadFunction, this)
-	{	
-	}
+	{}
 
 	~Timing()
 	{
