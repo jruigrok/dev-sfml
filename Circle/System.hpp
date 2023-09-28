@@ -22,10 +22,14 @@ public:
 		}
 	}
 
-	void drawFrame() {
-		grid.drawElements(window, viewPort.objectStates);
-		grid.drawBoarder(window, viewPort.states);
+	void drawObjects(sf::RenderStates state) {
+		grid.drawElements(window, state);
 	}
+
+	void drawBoarder(sf::RenderStates state) {
+		grid.drawBoarder(window, state);
+	}
+	
 
 	bool isPaused() {
 		return pause;
@@ -76,8 +80,10 @@ public:
 		Circle c = c_;
 		for (uint32_t i = 0; i < width; i++) {
 			for (uint32_t j = 0; j < height; j++) {
+				if (grid.inBoarder(c_.pos) && grid.getLength(grid.getGridPos(c_.pos)) == 0) {
+					grid.addElementToGrid(c_);
+				}
 				c_.movePos({ 0,grid.getCellSize() });
-				grid.addElementToGrid(c_);
 			}
 			c_.movePos({ grid.getCellSize() , grid.getCellSize() * height * -1 });
 		}
@@ -128,6 +134,7 @@ public:
 			mouseDown = false;
 		}
 		else if (event.type == sf::Event::KeyPressed) {
+			//cout << event.key.code << endl;
 			switch (event.key.code) {
 			case 26:
 				mode = 0;
@@ -147,6 +154,17 @@ public:
 			case 74:
 				grid.setDt(grid.getDt() * 0.9f);
 				break;
+			case 55:
+				if (rectSize < 10) {
+					rectSize++;
+				}
+				break;
+			case 56:
+				if (rectSize > 1) {
+					rectSize--;
+				}
+				break;
+
 			}
 		}
 		else if (event.type == sf::Event::MouseMoved) {
@@ -164,25 +182,24 @@ public:
 		if (mouseDown) {
 			sf::Vector2f truePos = viewPort.getTruePos((sf::Vector2f)mousePos);
 			sf::Vector2f gridPos = (sf::Vector2f)grid.getGridPos(truePos);
+	
 			switch (mode) {
 			case 0:
 				viewPort.move((truePos - anchorPos) * viewPort.getScale());
 				break;
 			case 1:
-				if (grid.inBoarder(truePos) && grid.getLength(grid.getGridPos(truePos)) == 0) {
+				if (true) {
 					Circle c({ gridPos * grid.getCellSize(), {0,0} });
 					c.holdPos = true;
-					grid.addElementToGrid(c);
+					makeRect(rectSize, rectSize, c);
 				}
 				break;
 			case 2:
-				if (grid.inBoarder(truePos)) {
-					Circle c({ gridPos * grid.getCellSize(), {0.1f,1} });
-					grid.addElementToGrid(c);
-					break;
+				if (true) {
+					Circle c({ gridPos * grid.getCellSize(), {0.1f,1}});
+					makeRect(rectSize, rectSize, c);
 				}
 			}
-
 		}
 	}
 
@@ -198,6 +215,7 @@ private:
 	bool mouseDown = false;
 	bool pause = false;
 	uint32_t mode = 0;
+	uint32_t rectSize = 1;
 	sf::Vector2f anchorPos = { 0,0 };
 	sf::Vector2i mousePos = { 0,0 };
 };

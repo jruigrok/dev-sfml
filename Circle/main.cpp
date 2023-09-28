@@ -8,8 +8,8 @@
 
 
 int main(int argc, char* argv[]) {
-    const uint32_t width = 1800;
-    const uint32_t height = 280;
+    const uint32_t width = 450;
+    const uint32_t height = 200;
     const uint32_t depth = 6;
     const uint32_t cellSize = 3;
     const float dt = 0.001f;
@@ -20,9 +20,10 @@ int main(int argc, char* argv[]) {
     sf::Vector2i mouse;
     sf::Texture circleImg;
     sf::RenderStates objectStates;
-    sf::RenderStates states;
+    sf::RenderStates boarderStates;
     sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "Window");
-    ViewPort viewPort(states ,objectStates, {-500,0}, 0.5);
+    std::vector<sf::RenderStates*> statesV = { &boarderStates, &objectStates };
+    ViewPort viewPort(statesV, {0,0}, 0.5);
 
     std::string circlePngFilepath = std::string(ARTIFACTS_PATH) + "circle.png";
 
@@ -39,11 +40,9 @@ int main(int argc, char* argv[]) {
     // Set frame limit
     window.setFramerateLimit(frameLimit);
     
-    //sf::Font font;
-    //font.loadFromFile(std::string(ARTIFACTS_PATH) + "Fonts/arial.ttf");
 
     Circle c({ 200,650 }, { -0.1f,1 });
-    Circle c1({ 200,100 }, { -0.1f,1 });
+    Circle c1({ 200,100 }, { -0.1f,1.0f });
 
     Grid grid(width, height, depth, cellSize, dt);
     System system(subSteps, grid, window, viewPort);
@@ -73,7 +72,7 @@ int main(int argc, char* argv[]) {
         timing.tick();
         window.clear();
         system.handleInputs();
-        if (grid.size() < 200000 && !system.isPaused()) {
+        if (grid.size() < 100000 && !system.isPaused()) {
             c1.setPos({ width * cellSize / 2, 20 });
             for (uint32_t i = 0; i < 100; i++) {
                 c1.movePos({ cellSize, 0 });
@@ -81,7 +80,8 @@ int main(int argc, char* argv[]) {
             }
         }
         system.updatePos();
-        system.drawFrame();
+        system.drawObjects(objectStates);
+        system.drawBoarder(boarderStates);
         window.display();
     }
     

@@ -109,6 +109,7 @@ public:
 
 	bool inBoarder(sf::Vector2f pos) {
 		float buffer = boarderBuffer * cellSize - radius;
+		
 		return (pos.x - buffer >= 0 && pos.y - buffer >= 0 && pos.x + buffer < width * cellSize && pos.y + buffer < height * cellSize);
 	}
 
@@ -145,7 +146,6 @@ public:
 		VA_MultiThread->setNumElements((uint32_t)l);
 		VA_MultiThread->processAll();
 	}
-
 
 private:
 
@@ -247,7 +247,7 @@ private:
 						Circle* ob2 = &circles[v2[j]];
 						const sf::Vector2f d3 = ob2->pos - ob1->pos;
 						const float d2 = d3.x * d3.x + d3.y * d3.y;
-						if (d2 < cellSize * cellSize && d2 > 0.001f) {
+						if (d2 < cellSize * cellSize && d2 > 0.01f) {
 							const float d = sqrt(d2);
 							float delta = response_coef * 0.5f * (d - cellSize);
 							const sf::Vector2f dir = d3 / d;
@@ -293,7 +293,7 @@ private:
 	sf::Vector2f g = { 0, 1000.0f };
 	std::vector<Circle> circles;
 	std::vector <Link> constraints;
-	sf::VertexArray objectVA { sf::Quads, 1000000 };
+	sf::VertexArray objectVA { sf::Quads, 500000 };
 	sf::VertexArray boaderVA { sf::LineStrip, 5 };
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> gridProcessingFunction;
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> elementProcessingFunction;

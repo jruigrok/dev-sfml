@@ -3,20 +3,20 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <iostream>
+#include <vector>
 
 class ViewPort {
 public:
-	ViewPort(sf::RenderStates& states_, sf::RenderStates& objectStates_, sf::Vector2f pos_, float zoom_) : 
-		states(states_), objectStates(objectStates_) {
+	ViewPort(std::vector<sf::RenderStates*> &statesV_, sf::Vector2f pos_, float zoom_) :
+		statesV(statesV_) {
 		zoom(zoom_);
 		move(pos_);
-		//transform.translate(pos_);
-		//transform.scale(zoom_, zoom_);
 	};
 
 	void updateStates(sf::Transform& transform) {
-		states.transform = transform;
-		objectStates.transform = transform;
+		for (uint32_t i = 0; i < statesV.size(); i++) {
+			statesV[i]->transform = transform;
+		}
 	}
 
 	void zoom(float factor) {
@@ -51,11 +51,9 @@ public:
 		return scale;
 	}
 
-	sf::RenderStates& states;
-	sf::RenderStates& objectStates;
-	
 private:
-	
+
+	std::vector<sf::RenderStates*> statesV;
 	sf::Transform transform;
 	sf::Vector2f pos = { 0,0 };
 	float scale = 1;
