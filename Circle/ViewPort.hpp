@@ -7,7 +7,7 @@
 
 class ViewPort {
 public:
-	ViewPort(std::vector<sf::RenderStates*> &statesV_, sf::Vector2f pos_, float zoom_) :
+	ViewPort(std::vector<sf::RenderStates*> statesV_, sf::Vector2f pos_, float zoom_) :
 		statesV(statesV_) {
 		zoom(zoom_);
 		move(pos_);

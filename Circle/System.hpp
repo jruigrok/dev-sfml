@@ -29,94 +29,99 @@ public:
 	void drawBoarder(sf::RenderStates state) {
 		grid.drawBoarder(window, state);
 	}
+
+	void addElement(Circle& c) {
+		grid.addElementToGrid(&c);
+	}
 	
 
 	bool isPaused() {
 		return pause;
 	}
 
-	void makeRigidBody(float x, float y, uint32_t width, uint32_t height, float rigigity) {
+	void makeRigidBody(float x, float y, const uint32_t width, const uint32_t height, float rigigity) {
 		float diaL = sqrt(grid.getCellSize() * grid.getCellSize() * 2.0f);
+		Circle** added = new Circle* [width * height];
 		for (uint32_t i = 0; i < width; i++) {
 			for (uint32_t j = 0; j < height; j++) {
 				Circle c({ { x + i * grid.getCellSize(), y + j * grid.getCellSize() }, { 0,0 } });
-				grid.addElementToGrid(c);
+				added[i] = &c;
+				addElement(c);
 				if (j != 0) {
-					Link l = { grid.size() - 1, grid.size() - 2, grid.getCellSize(), rigigity };
-					grid.addConstraintToGrid(l);
+					Link l = { &c, added[grid.size() - 2], grid.getCellSize(), rigigity };
+					grid.addConstraintToGrid(&l);
 				}
 
 				if (i != 0) {
-					Link l = { grid.size() - 1, grid.size() - (height + 1) , grid.getCellSize(), rigigity };
-					grid.addConstraintToGrid(l);
+					Link l = { &c,  added[grid.size() - (height + 1)] , grid.getCellSize(), rigigity };
+					grid.addConstraintToGrid(&l);
 
 					if (j < height - 1) {
-						Link l = { grid.size() - 1, grid.size() - height , diaL, rigigity };
-						grid.addConstraintToGrid(l);
+						Link l = { &c,  added[grid.size() - height] , diaL, rigigity };
+						grid.addConstraintToGrid(&l);
 					}
 
 					if (j != 0) {
-						Link l = { grid.size() - 1, grid.size() - (height + 2) , diaL, rigigity };
-						grid.addConstraintToGrid(l);
+						Link l = { &c,  added[grid.size() - (height + 2)] , diaL, rigigity };
+						grid.addConstraintToGrid(&l);
 					}
 				}
 			}
 		}
 	}
 
-	void makeRope(float x, float y, uint32_t length, float rigigity) {
+	void makeRope(float x, float y, const uint32_t length, float rigigity) {
 		Circle c({ { x, y }, { 0,0 } });
 		c.holdPos = 1;
-		grid.addElementToGrid(c);
+		addElement(c);
 		for (uint32_t i = 1; i < length; i++) {
-			Circle c({ { x, y + i * grid.getCellSize()}, {0,0}});
-			grid.addElementToGrid(c);
-			Link l({ grid.size() - 1, grid.size() - 2, grid.getCellSize(), rigigity });
-			grid.addConstraintToGrid(l);
+			Circle c2({ { x, y + i * grid.getCellSize()}, {0,0}});
+			addElement(c2);
+			size_t circlesSize = grid.size();
+			Link l({ grid.getCircles()[circlesSize - 1], grid.getCircles()[circlesSize - 2], grid.getCellSize(), rigigity});
+			grid.addConstraintToGrid(&l);
 		}
 	}
 
-	void makeRect(uint32_t width, uint32_t height, Circle& c_) {
-		Circle c = c_;
+	void makeRect(const uint32_t width, const uint32_t height, Circle c_) {
 		for (uint32_t i = 0; i < width; i++) {
 			for (uint32_t j = 0; j < height; j++) {
 				if (grid.inBoarder(c_.pos) && grid.getLength(grid.getGridPos(c_.pos)) == 0) {
-					grid.addElementToGrid(c_);
+					addElement(c_);
 				}
 				c_.movePos({ 0,grid.getCellSize() });
 			}
 			c_.movePos({ grid.getCellSize() , grid.getCellSize() * height * -1 });
 		}
-		c_ = c;
 	}
 
-	void makeBoarder(uint32_t cellSize) {
+	void makeBoarder(const uint32_t cellSize) {
 		Circle c({ { cellSize / 2.0f, cellSize / 2.0f }, {0,0} });
 		c.holdPos = true;
 		for (uint32_t i = 0; i < grid.getWidth(); i++) {
-			grid.addElementToGrid(c);
+			addElement(c);
 			c.pos.x += cellSize;
 		}
 		c.pos = { cellSize / 2.0f ,grid.getHeight() * cellSize - cellSize / 2.0f };
 		for (uint32_t i = 0; i < grid.getWidth(); i++) {
-			grid.addElementToGrid(c);
+			addElement(c);
 			c.pos.x += cellSize;
 		}
 		c.pos = { cellSize * 2.0f ,cellSize * 1.5f };
 
 		for (uint32_t i = 0; i < grid.getHeight() - 2; i++) {
-			grid.addElementToGrid(c);
+			addElement(c);
 			c.pos.y += cellSize;
 		}
 		c.pos = { grid.getWidth() * cellSize - cellSize * 2.0f ,cellSize * 1.5f };
 
 		for (uint32_t i = 0; i < grid.getHeight() - 2; i++) {
-			grid.addElementToGrid(c);
+			addElement(c);
 			c.pos.y += cellSize;
 		}
 	}
 
-	void handleEvents(sf::Event& event) {
+	void handleEvents(const sf::Event& event) {
 		if (event.type == sf::Event::MouseWheelMoved) {
 			if (event.mouseWheel.delta < 0) {
 				viewPort.zoomOnPoint(scrollZoomMag, (sf::Vector2f)mousePos);
@@ -202,8 +207,6 @@ public:
 			}
 		}
 	}
-
-	
 
 private:
 	

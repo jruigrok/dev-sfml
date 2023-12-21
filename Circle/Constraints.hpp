@@ -7,12 +7,12 @@
 class Link
 {
 public:
-	Link(uint64_t idx1_, uint64_t idx2_, float dist_, float rigigity_) :
-		idx1(idx1_), idx2(idx2_), dist(dist_), rigigity(rigigity_)
+	Link(Circle* ob1_, Circle* ob2_, float dist_, float rigigity_) :
+		ob1(ob1_), ob2(ob2_), dist(dist_), rigigity(rigigity_)
 	{};
 
-	Link(uint64_t idx1_, uint64_t idx2_, sf::Vector2f pos1, sf::Vector2f pos2, float rigigity_) :
-		idx1(idx1_), idx2(idx2_), rigigity(rigigity_)
+	Link(Circle* ob1_, Circle* ob2_, sf::Vector2f pos1, sf::Vector2f pos2, float rigigity_) :
+		ob1(ob1_), ob2(ob2_), rigigity(rigigity_)
 	{
 		const sf::Vector2f axis = pos1 - pos2;
 		dist = sqrt(axis.x * axis.x + axis.y * axis.y);
@@ -20,19 +20,17 @@ public:
 
 	~Link() = default;
 
-	void update(std::vector<Circle>& circles) {
-		Circle& ob1 = circles[idx1];
-		Circle& ob2 = circles[idx2];
-		const sf::Vector2f axis = ob1.pos - ob2.pos;
+	void update() {
+		const sf::Vector2f axis = ob1->pos - ob2->pos;
 		const float d = sqrt(axis.x * axis.x + axis.y * axis.y);
 		const sf::Vector2f dir = axis / dist;
 		const float delta = dist - d;
-		ob1.pos += 0.5f * delta * (1 + ob2.holdPos) * !ob1.holdPos * dir * rigigity;
-		ob2.pos -= 0.5f * delta * (1 + ob1.holdPos) * !ob2.holdPos * dir * rigigity;
+		ob1->pos += 0.5f * delta * (1 + ob2->holdPos) * !ob1->holdPos * dir * rigigity;
+		ob2->pos -= 0.5f * delta * (1 + ob1->holdPos) * !ob2->holdPos * dir * rigigity;
 	}
 private:
 	float dist;
 	const float rigigity;
-	const uint64_t idx1;
-	const uint64_t idx2;
+	Circle* ob1;
+	Circle* ob2;
 };

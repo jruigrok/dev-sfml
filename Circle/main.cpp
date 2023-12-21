@@ -6,7 +6,6 @@
 #include <System.hpp>
 #include <functional>
 
-
 int main(int argc, char* argv[]) {
     const uint32_t width = 450;
     const uint32_t height = 200;
@@ -24,6 +23,7 @@ int main(int argc, char* argv[]) {
     sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "Window");
     std::vector<sf::RenderStates*> statesV = { &boarderStates, &objectStates };
     ViewPort viewPort(statesV, {0,0}, 0.5);
+    Timing timing;
 
     std::string circlePngFilepath = std::string(ARTIFACTS_PATH) + "circle.png";
 
@@ -32,27 +32,17 @@ int main(int argc, char* argv[]) {
     }
     circleImg.setSmooth(true);
     circleImg.generateMipmap();
-
     objectStates.texture = &circleImg;
-    
-    Timing timing;
-    
-    // Set frame limit
     window.setFramerateLimit(frameLimit);
-    
-
-    Circle c({ 200,650 }, { -0.1f,1 });
-    Circle c1({ 200,100 }, { -0.1f,1.0f });
 
     Grid grid(width, height, depth, cellSize, dt);
     System system(subSteps, grid, window, viewPort);
 
-    //system.makeRect(50, 50, c);
-
-    //system.makeRope(100, 100, 10, 0.9f);
-    //system.makeRigidBody(200, 500, 10, 15, 0.5f);
-    //system.makeBoarder(cellSize);
-    // Handle closing the window
+    system.makeRope(100, 100, 10, 1);
+    //Circle c({ 100,20 }, { 0,0 });
+    //grid.addElementToGrid(&c);
+    //Circle c2({ 100,30 }, { 0,0 });
+    //grid.addElementToGrid(&c2);
     while(window.isOpen()) {
         sf::Event Event;
         while(window.pollEvent(Event)) {
@@ -72,11 +62,14 @@ int main(int argc, char* argv[]) {
         timing.tick();
         window.clear();
         system.handleInputs();
+        
         if (grid.size() < 100000 && !system.isPaused()) {
-            c1.setPos({ width * cellSize / 2, 20 });
+            float pos = width * cellSize / 2;
+
             for (uint32_t i = 0; i < 100; i++) {
-                c1.movePos({ cellSize, 0 });
-                grid.addElementToGrid(c1);
+                Circle c({ pos, 20 }, { 0.3, 1 });
+                system.addElement(c);
+                pos += cellSize;
             }
         }
         system.updatePos();

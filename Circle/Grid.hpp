@@ -70,15 +70,16 @@ public:
 
 	}
 
-	void addElementToGrid(Circle& element) {
-		circles.push_back(element);
+	void addElementToGrid(Circle* element) {
+		Circle* newCircle = new Circle(*element);
+		circles.push_back(newCircle);
 	}
-	void addConstraintToGrid(Link& element) {
-		constraints.push_back(element);
+	void addConstraintToGrid(Link* element) {
+		Link* newLink = new Link(*element);
+		constraints.push_back(newLink);
 	}
 
 	void drawElements(sf::RenderWindow& window, sf::RenderStates& states) {
-		
 		window.draw(objectVA, states);
 	}
 
@@ -101,6 +102,10 @@ public:
 
 	void setDt(float dt_) {
 		dt = dt_;
+	}
+
+	std::vector<Circle*> getCircles() {
+		return circles;
 	}
 
 	size_t size(){
@@ -147,31 +152,33 @@ public:
 		VA_MultiThread->processAll();
 	}
 
+
+
 private:
 
-	void updateElements(uint32_t startIdx, uint32_t endIdx) {
+	void updateElements(const uint32_t startIdx, const uint32_t endIdx) {
 		for (uint32_t i = startIdx; i < endIdx; i++) {
-			Circle& c = circles[i];
-			c.set_a(g);
-			c.updatePos(dt);
+			Circle* c = circles[i];
+			c->set_a(g);
+			c->updatePos(dt);
 
 			// check boarders
-			if (circles[i].pos.x <= cellSize * boarderBuffer) {
-				circles[i].pos.x = cellSize * boarderBuffer;
+			if (circles[i]->pos.x <= cellSize * boarderBuffer) {
+				circles[i]->pos.x = cellSize * boarderBuffer;
 			}
-			else if (circles[i].pos.x >= width * cellSize - boarderBuffer * cellSize) {
-				circles[i].pos.x = width * cellSize - boarderBuffer * cellSize;
+			else if (circles[i]->pos.x >= width * cellSize - boarderBuffer * cellSize) {
+				circles[i]->pos.x = width * cellSize - boarderBuffer * cellSize;
 			}
-			if (circles[i].pos.y <= cellSize * boarderBuffer) {
-				circles[i].pos.y = cellSize * boarderBuffer;
+			if (circles[i]->pos.y <= cellSize * boarderBuffer) {
+				circles[i]->pos.y = cellSize * boarderBuffer;
 			}
-			else if (circles[i].pos.y >= height * cellSize - boarderBuffer * cellSize) {
-				circles[i].pos.y = height * cellSize - boarderBuffer * cellSize;
+			else if (circles[i]->pos.y >= height * cellSize - boarderBuffer * cellSize) {
+				circles[i]->pos.y = height * cellSize - boarderBuffer * cellSize;
 			}
 
 			// adds element to grid
-			int x = static_cast<uint32_t> (std::floor(c.pos.x / cellSize));
-			int y = static_cast<uint32_t> (std::floor(c.pos.y / cellSize));
+			int x = static_cast<uint32_t> (std::floor(c->pos.x / cellSize));
+			int y = static_cast<uint32_t> (std::floor(c->pos.y / cellSize));
 			if (gridL[x][y] < depth - 1) {
 				grid[x][y][gridL[x][y]] = i;
 				gridL[x][y]++;
@@ -203,12 +210,12 @@ private:
 	void makeElVAs_MT(uint32_t startIdx, uint32_t endIdx) {
 		const uint32_t size = 1024;
 		for (uint32_t i = startIdx; i < endIdx; i++) {
-			const sf::Vector2f* pos = &circles[i].pos;
+			const sf::Vector2f pos = circles[i]->pos;
 			const uint32_t idx = i << 2;
-			objectVA[idx + 0].position = circles[i].pos + sf::Vector2f(-radius, -radius);
-			objectVA[idx + 1].position = circles[i].pos + sf::Vector2f(radius, -radius);
-			objectVA[idx + 2].position = circles[i].pos + sf::Vector2f(radius, radius);
-			objectVA[idx + 3].position = circles[i].pos + sf::Vector2f(-radius, radius);
+			objectVA[idx + 0].position = circles[i]->pos + sf::Vector2f(-radius, -radius);
+			objectVA[idx + 1].position = circles[i]->pos + sf::Vector2f(radius, -radius);
+			objectVA[idx + 2].position = circles[i]->pos + sf::Vector2f(radius, radius);
+			objectVA[idx + 3].position = circles[i]->pos + sf::Vector2f(-radius, radius);
 			objectVA[idx + 0].texCoords = sf::Vector2f(0.0f, 0.0f);
 			objectVA[idx + 1].texCoords = sf::Vector2f(size, 0.0f);
 			objectVA[idx + 2].texCoords = sf::Vector2f(size, size);
@@ -226,8 +233,8 @@ private:
 
 	void fillGrid(uint32_t startIdx, uint32_t endIdx) {
 		for (uint32_t i = startIdx; i < endIdx; i++) {
-			int x = static_cast<uint32_t> (std::floor(circles[i].pos.x / cellSize));
-			int y = static_cast<uint32_t> (std::floor(circles[i].pos.y / cellSize));
+			int x = static_cast<uint32_t> (std::floor(circles[i]->pos.x / cellSize));
+			int y = static_cast<uint32_t> (std::floor(circles[i]->pos.y / cellSize));
 			if (gridL[x][y] < depth - 1) {
 				grid[x][y][gridL[x][y]] = i;
 				gridL[x][y]++;
@@ -243,16 +250,16 @@ private:
 			for (uint32_t i = 0; i < v1l; i++) {
 				for (uint32_t j = 0; j < v2l; j++) {
 					if (v1[i] != v2[j]) {
-						Circle* ob1 = &circles[v1[i]];
-						Circle* ob2 = &circles[v2[j]];
-						const sf::Vector2f d3 = ob2->pos - ob1->pos;
+						Circle& ob1 = *circles[v1[i]];
+						Circle& ob2 = *circles[v2[j]];
+						const sf::Vector2f d3 = ob2.pos - ob1.pos;
 						const float d2 = d3.x * d3.x + d3.y * d3.y;
 						if (d2 < cellSize * cellSize && d2 > 0.01f) {
 							const float d = sqrt(d2);
 							float delta = response_coef * 0.5f * (d - cellSize);
 							const sf::Vector2f dir = d3 / d;
-							ob1->pos += delta * (1 + ob2->holdPos) * !ob1->holdPos * dir;
-							ob2->pos += -delta * (1 + ob1->holdPos) * !ob2->holdPos * dir;
+							ob1.pos += delta * (1 + ob2.holdPos) * !ob1.holdPos * dir;
+							ob2.pos += -delta * (1 + ob1.holdPos) * !ob2.holdPos * dir;
 						}
 					}
 				}
@@ -262,7 +269,7 @@ private:
 
 	void handleConstraints() {
 		for (uint32_t i = 0; i < constraints.size(); i++) {
-			constraints[i].update(circles);
+			constraints[i]->update();
 		}
 	}
 
@@ -291,8 +298,8 @@ private:
 	uint32_t*** grid;
 	uint32_t** gridL;
 	sf::Vector2f g = { 0, 1000.0f };
-	std::vector<Circle> circles;
-	std::vector <Link> constraints;
+	std::vector<Circle*> circles;
+	std::vector<Link*> constraints;
 	sf::VertexArray objectVA { sf::Quads, 500000 };
 	sf::VertexArray boaderVA { sf::LineStrip, 5 };
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> gridProcessingFunction;
