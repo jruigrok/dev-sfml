@@ -80,7 +80,7 @@ public:
 	}
 
 	void drawElements(sf::RenderWindow& window, sf::RenderStates& states) {
-		window.draw(objectVA, states);
+		window.draw(objectVA,states);
 	}
 
 	void drawBoarder(sf::RenderWindow& window, sf::RenderStates& states) {
@@ -148,7 +148,7 @@ public:
 	void makeEl_VAs() {
 		const size_t l = size();
 		//objectVA.resize(l * 4);
-		VA_MultiThread->setNumElements((uint32_t)l);
+		VA_MultiThread->setNumElements(static_cast<uint32_t>(l));
 		VA_MultiThread->processAll();
 	}
 
@@ -211,7 +211,7 @@ private:
 		const uint32_t size = 1024;
 		for (uint32_t i = startIdx; i < endIdx; i++) {
 			const sf::Vector2f pos = circles[i]->pos;
-			const uint32_t idx = i << 2;
+			const size_t idx = static_cast<size_t>(i) << 2;
 			objectVA[idx + 0].position = circles[i]->pos + sf::Vector2f(-radius, -radius);
 			objectVA[idx + 1].position = circles[i]->pos + sf::Vector2f(radius, -radius);
 			objectVA[idx + 2].position = circles[i]->pos + sf::Vector2f(radius, radius);
@@ -220,6 +220,10 @@ private:
 			objectVA[idx + 1].texCoords = sf::Vector2f(size, 0.0f);
 			objectVA[idx + 2].texCoords = sf::Vector2f(size, size);
 			objectVA[idx + 3].texCoords = sf::Vector2f(0.0f, size);
+			objectVA[idx + 0].color = sf::Color::White;
+			objectVA[idx + 1].color = sf::Color::White;
+			objectVA[idx + 2].color = sf::Color::White;
+			objectVA[idx + 3].color = sf::Color::White;
 		}
 	}
 
@@ -297,10 +301,11 @@ private:
 	uint32_t depth;
 	uint32_t*** grid;
 	uint32_t** gridL;
-	sf::Vector2f g = { 0, 1000.0f };
+	sf::Shader shader;
+	sf::Vector2f g = { 0, 500.0f };
 	std::vector<Circle*> circles;
 	std::vector<Link*> constraints;
-	sf::VertexArray objectVA { sf::Quads, 500000 };
+	sf::VertexArray objectVA { sf::Quads, 500000};
 	sf::VertexArray boaderVA { sf::LineStrip, 5 };
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> gridProcessingFunction;
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> elementProcessingFunction;

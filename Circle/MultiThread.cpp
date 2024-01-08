@@ -55,6 +55,9 @@ MultiThreadedProcessing::MultiThreadedProcessing(uint32_t numThreads, std::funct
 		// Note std::ref here is necessary to pass the reference to the threadFunction
 		threads_.emplace_back(&MultiThreadedProcessing::threadFunction, this, std::ref(threadControl_[i]));
 	}
+	
+
+	//processingFunction_(threadControl_[0].startIndex, threadControl_[0].startIndex);
 }
 
 MultiThreadedProcessing::~MultiThreadedProcessing()
@@ -147,7 +150,7 @@ void MultiThreadedProcessing::processAll()
 	{
 		threadControl_[i].startProcessing();
 	}
-
+	//MultiThreadedProcessing::threadFunction(threadControl_[0]);
 	for (uint32_t i = 0; i < numThreads_; i++)
 	{
 		threadControl_[i].waitForCompletion();

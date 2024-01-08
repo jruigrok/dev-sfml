@@ -41,28 +41,26 @@ public:
 
 	void makeRigidBody(float x, float y, const uint32_t width, const uint32_t height, float rigigity) {
 		float diaL = sqrt(grid.getCellSize() * grid.getCellSize() * 2.0f);
-		Circle** added = new Circle* [width * height];
 		for (uint32_t i = 0; i < width; i++) {
 			for (uint32_t j = 0; j < height; j++) {
 				Circle c({ { x + i * grid.getCellSize(), y + j * grid.getCellSize() }, { 0,0 } });
-				added[i] = &c;
 				addElement(c);
 				if (j != 0) {
-					Link l = { &c, added[grid.size() - 2], grid.getCellSize(), rigigity };
+					Link l = { &c, grid.getCircles()[grid.size() - 2], grid.getCellSize(), rigigity };
 					grid.addConstraintToGrid(&l);
 				}
 
 				if (i != 0) {
-					Link l = { &c,  added[grid.size() - (height + 1)] , grid.getCellSize(), rigigity };
+					Link l = { &c,  grid.getCircles()[grid.size() - (height + 1)] , grid.getCellSize(), rigigity };
 					grid.addConstraintToGrid(&l);
 
 					if (j < height - 1) {
-						Link l = { &c,  added[grid.size() - height] , diaL, rigigity };
+						Link l = { &c,  grid.getCircles()[grid.size() - height] , diaL, rigigity };
 						grid.addConstraintToGrid(&l);
 					}
 
 					if (j != 0) {
-						Link l = { &c,  added[grid.size() - (height + 2)] , diaL, rigigity };
+						Link l = { &c,  grid.getCircles()[grid.size() - (height + 2)] , diaL, rigigity };
 						grid.addConstraintToGrid(&l);
 					}
 				}

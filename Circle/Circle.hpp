@@ -3,7 +3,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics.hpp>
 
-class Circle
+struct Circle
 {
 public:
 	sf::Vector2f pos;
