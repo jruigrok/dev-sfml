@@ -220,10 +220,10 @@ private:
 			objectVA[idx + 1].texCoords = sf::Vector2f(size, 0.0f);
 			objectVA[idx + 2].texCoords = sf::Vector2f(size, size);
 			objectVA[idx + 3].texCoords = sf::Vector2f(0.0f, size);
-			objectVA[idx + 0].color = sf::Color::White;
-			objectVA[idx + 1].color = sf::Color::White;
-			objectVA[idx + 2].color = sf::Color::White;
-			objectVA[idx + 3].color = sf::Color::White;
+			objectVA[idx + 0].color = circles[i]->getColor();
+			objectVA[idx + 1].color = circles[i]->getColor();
+			objectVA[idx + 2].color = circles[i]->getColor();
+			objectVA[idx + 3].color = circles[i]->getColor();
 		}
 	}
 

@@ -12,7 +12,16 @@ public:
 	Circle(sf::Vector2f Pos, sf::Vector2f v)
 		:
 		pos(Pos),
-		oldPos(Pos - v) {};
+		oldPos(Pos - v),
+		color(sf::Color::White)
+	{};
+
+	Circle(sf::Vector2f Pos, sf::Vector2f v, sf::Color Color)
+		:
+		pos(Pos),
+		oldPos(Pos - v),
+		color(Color)
+	{};
 
 	void updatePos(float dt) {
 		if (!holdPos) {
@@ -41,7 +50,12 @@ public:
 		oldPos += pos_;
 	}
 
+	sf::Color getColor() {
+		return color;
+	}
+
 private:
 	sf::Vector2f oldPos;
 	sf::Vector2f a = { 0,0 };
+	sf::Color color;
 };

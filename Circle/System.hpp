@@ -68,12 +68,12 @@ public:
 		}
 	}
 
-	void makeRope(float x, float y, const uint32_t length, float rigigity) {
-		Circle c({ { x, y }, { 0,0 } });
+	void makeRope(float x, float y, const uint32_t length, float rigigity, sf::Color color) {
+		Circle c({ { x, y }, { 0,0 } , color});
 		c.holdPos = 1;
 		addElement(c);
 		for (uint32_t i = 1; i < length; i++) {
-			Circle c2({ { x, y + i * grid.getCellSize()}, {0,0}});
+			Circle c2({ { x, y + i * grid.getCellSize()}, {0,0}, color});
 			addElement(c2);
 			size_t circlesSize = grid.size();
 			Link l({ grid.getCircles()[circlesSize - 1], grid.getCircles()[circlesSize - 2], grid.getCellSize(), rigigity});

@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
     sf::RenderTexture sceneBuffer;
     sceneBuffer.create(screenWidth, screenHeight);
 
-    system.makeRope(100, 100, 50, 0.7);
+    system.makeRope(100, 100, 50, 0.7, sf::Color::Red);
     //Circle c({ 100,20 }, { 0,0 });
     //grid.addElementToGrid(&c);
     //Circle c2({ 100,30 }, { 0,0 });
