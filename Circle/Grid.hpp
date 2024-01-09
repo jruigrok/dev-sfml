@@ -33,15 +33,10 @@ public:
 		elementProcessingFunction = [&](uint32_t startIdx, uint32_t endIdx) {
 			updateElements(startIdx, endIdx);
 		};
-		VA_ProcessingFunction = [&](uint32_t startIdx, uint32_t endIdx) {
-			makeElVAs_MT(startIdx, endIdx);
-		};
-
-
+		
 		gridMultiThread = std::make_unique<MultiThreadedProcessing>(20, gridProcessingFunction);
 		gridMultiThread->setNumElements(width - 2);
 		elementMultiThread = std::make_unique<MultiThreadedProcessing>(20, elementProcessingFunction);
-		VA_MultiThread = std::make_unique<MultiThreadedProcessing>(20, VA_ProcessingFunction);
 		makeBoaderVA();
 	};
 
@@ -147,9 +142,23 @@ public:
 
 	void makeEl_VAs() {
 		const size_t l = size();
-		//objectVA.resize(l * 4);
-		VA_MultiThread->setNumElements(static_cast<uint32_t>(l));
-		VA_MultiThread->processAll();
+		const uint32_t size = 1024;
+		for (uint32_t i = 0; i < l; i++) {
+			const sf::Vector2f pos = circles[i]->pos;
+			const size_t idx = static_cast<size_t>(i) << 2;
+			objectVA[idx + 0].position = circles[i]->pos + sf::Vector2f(-radius, -radius);
+			objectVA[idx + 1].position = circles[i]->pos + sf::Vector2f(radius, -radius);
+			objectVA[idx + 2].position = circles[i]->pos + sf::Vector2f(radius, radius);
+			objectVA[idx + 3].position = circles[i]->pos + sf::Vector2f(-radius, radius);
+			objectVA[idx + 0].texCoords = sf::Vector2f(0.0f, 0.0f);
+			objectVA[idx + 1].texCoords = sf::Vector2f(size, 0.0f);
+			objectVA[idx + 2].texCoords = sf::Vector2f(size, size);
+			objectVA[idx + 3].texCoords = sf::Vector2f(0.0f, size);
+			objectVA[idx + 0].color = circles[i]->getColor();
+			objectVA[idx + 1].color = circles[i]->getColor();
+			objectVA[idx + 2].color = circles[i]->getColor();
+			objectVA[idx + 3].color = circles[i]->getColor();
+		}
 	}
 
 
@@ -205,26 +214,6 @@ private:
 					collide(v1, grid[i + 1][j + 1], v1l, gridL[i + 1][j + 1]);
 				}
 			}
-		}
-	}
-
-	void makeElVAs_MT(uint32_t startIdx, uint32_t endIdx) {
-		const uint32_t size = 1024;
-		for (uint32_t i = startIdx; i < endIdx; i++) {
-			const sf::Vector2f pos = circles[i]->pos;
-			const size_t idx = static_cast<size_t>(i) << 2;
-			objectVA[idx + 0].position = circles[i]->pos + sf::Vector2f(-radius, -radius);
-			objectVA[idx + 1].position = circles[i]->pos + sf::Vector2f(radius, -radius);
-			objectVA[idx + 2].position = circles[i]->pos + sf::Vector2f(radius, radius);
-			objectVA[idx + 3].position = circles[i]->pos + sf::Vector2f(-radius, radius);
-			objectVA[idx + 0].texCoords = sf::Vector2f(0.0f, 0.0f);
-			objectVA[idx + 1].texCoords = sf::Vector2f(size, 0.0f);
-			objectVA[idx + 2].texCoords = sf::Vector2f(size, size);
-			objectVA[idx + 3].texCoords = sf::Vector2f(0.0f, size);
-			objectVA[idx + 0].color = circles[i]->getColor();
-			objectVA[idx + 1].color = circles[i]->getColor();
-			objectVA[idx + 2].color = circles[i]->getColor();
-			objectVA[idx + 3].color = circles[i]->getColor();
 		}
 	}
 
@@ -319,5 +308,4 @@ private:
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> VA_ProcessingFunction;
 	std::unique_ptr<MultiThreadedProcessing> gridMultiThread;
 	std::unique_ptr<MultiThreadedProcessing> elementMultiThread;
-	std::unique_ptr<MultiThreadedProcessing> VA_MultiThread;
 };

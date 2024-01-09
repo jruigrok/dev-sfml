@@ -18,8 +18,11 @@ public:
 			for (uint32_t i = 0; i < subSteps; i++) {
 				grid->updateGrid();
 			}
-			grid->makeEl_VAs();
+			
 		}
+	}
+	void makeVAs() {
+		grid->makeEl_VAs();
 	}
 
 	void drawObjects() {

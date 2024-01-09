@@ -12,7 +12,7 @@
 int main(int argc, char* argv[]) {
     const uint32_t width = 600;
     const uint32_t height = 200;
-    const uint32_t depth = 20;
+    const uint32_t depth = 6;
     const uint32_t cellSize = 3;
     const float dt = 0.001f;
     const uint32_t subSteps = 8;
@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "Window");
     std::vector<sf::RenderStates*> statesV = { &boarderStates, &objectStates };
     ViewPort viewPort(statesV, { 0,0 }, 0.5);
-    Timing timing;
+    //Timing timing;
 
     std::string circlePngFilepath = std::string(ARTIFACTS_PATH) + "circle.png";
 
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
     shader.setUniform("horizontal", true);
 
     system.makeRope(100, 100, 50, 1.0, sf::Color::Red);
-    //system.makeRigidBody(200, 200, 5, 30, 1.0, sf::Color::Cyan);
+    system.makeRigidBody(200, 200, 50, 30, 1.0, sf::Color::Cyan);
     Solver solver(&system, &window);
 
     //Circle c({ 100,20 }, { 0,0 });
@@ -90,13 +90,14 @@ int main(int argc, char* argv[]) {
         
         window.clear();
         system.handleInputs();
-        timing.tick();
+        //timing.tick();
+        system.makeVAs();
         system.drawObjects();
         system.drawBoarder();
 
         
         
-        if (grid.size() < 120000 && !system.isPaused()) {
+        if (grid.size() < 100000 && !system.isPaused()) {
             float pos = static_cast<float>(width * cellSize) / 2;
 
             for (uint32_t i = 0; i < 100; i++) {
@@ -105,6 +106,7 @@ int main(int argc, char* argv[]) {
                 pos += cellSize;
             }
         }
+        
         window.display();
     }
     

@@ -30,8 +30,10 @@ public:
 	}
 
 	void run() {
+		Timing timing;
 		while (window->isOpen()) {
 			system->updatePos();
+			timing.tick();
 		}
 	}
 
