@@ -193,11 +193,12 @@ private:
 				const uint32_t v1l = gridL[i][j];
 				if (v1l != 0) {
 					uint32_t* v1 = grid[i][j];
+					collide(v1, grid[i][j], v1l, gridL[i][j]);
 					collide(v1, grid[i - 1][j - 1], v1l, gridL[i - 1][j - 1]);
 					collide(v1, grid[i - 1][j], v1l, gridL[i - 1][j]);
 					collide(v1, grid[i - 1][j + 1], v1l, gridL[i - 1][j + 1]);
 					collide(v1, grid[i][j - 1], v1l, gridL[i][j - 1]);
-					collide(v1, grid[i][j], v1l, gridL[i][j]);
+					
 					collide(v1, grid[i][j + 1], v1l, gridL[i][j + 1]);
 					collide(v1, grid[i + 1][j - 1], v1l, gridL[i + 1][j - 1]);
 					collide(v1, grid[i + 1][j], v1l, gridL[i + 1][j]);
@@ -239,10 +240,16 @@ private:
 		for (uint32_t i = startIdx; i < endIdx; i++) {
 			int x = static_cast<uint32_t> (std::floor(circles[i]->pos.x / cellSize));
 			int y = static_cast<uint32_t> (std::floor(circles[i]->pos.y / cellSize));
-			if (gridL[x][y] < depth - 1) {
-				grid[x][y][gridL[x][y]] = i;
-				gridL[x][y]++;
+			for (int dx = -1; dx <= 1; dx++) {
+				for (int dy = -1; dy <= 1; dy++) {
+					if (gridL[x + dx][y + dy] < depth) {
+						grid[x + dx][y + dy][gridL[x + dx][y + dy]] = i;
+						gridL[x + dx][y + dy]++;
+					}
+					
+				}
 			}
+			
 		}
 	}
 
@@ -305,7 +312,7 @@ private:
 	sf::Vector2f g = { 0, 500.0f };
 	std::vector<Circle*> circles;
 	std::vector<Link*> constraints;
-	sf::VertexArray objectVA { sf::Quads, 500000};
+	sf::VertexArray objectVA { sf::Quads, 1000000};
 	sf::VertexArray boaderVA { sf::LineStrip, 5 };
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> gridProcessingFunction;
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> elementProcessingFunction;

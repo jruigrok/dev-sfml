@@ -55,7 +55,7 @@ public:
 	}
 
 private:
-	uint32_t tickCount_=0;
+	uint32_t tickCount_ = 0;
 	uint32_t tickCountLast_ = 0;
 	std::mutex mutex;
 	bool exit_ = false;

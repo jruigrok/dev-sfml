@@ -35,5 +35,5 @@ private:
 	const float rigigity;
 	Circle* ob1;
 	Circle* ob2;
-	const float MAXMOVMENT = 3.0f;
+	const float MAXMOVMENT = 1.0f;
 };
