@@ -10,7 +10,7 @@
 - Can handle over 100k particles at over 60fps using 4 physics substeps on most midrange laptops.
 - Lowering substeps increases performance but may result in a more unstable simulation.
 
-### Controls:
+## Controls:
 
 - Press 'p' to pause the simulation, use the mouse to move around, and scroll wheel to zoom in.
 - Basic controls for creating particles:
