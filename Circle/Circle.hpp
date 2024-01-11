@@ -50,7 +50,7 @@ public:
 		oldPos += pos_;
 	}
 
-	sf::Color getColor() {
+	sf::Color getColor() const {
 		return color;
 	}
 

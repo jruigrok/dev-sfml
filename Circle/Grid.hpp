@@ -74,24 +74,24 @@ public:
 		constraints.push_back(newLink);
 	}
 
-	void drawElements(sf::RenderWindow& window, sf::RenderStates& states) {
+	void drawElements(sf::RenderWindow& window, sf::RenderStates& states) const {
 		window.draw(objectVA,states);
 	}
 
-	void drawBoarder(sf::RenderWindow& window, sf::RenderStates& states) {
+	void drawBoarder(sf::RenderWindow& window, sf::RenderStates& states) const {
 		window.draw(boaderVA, states);
 	}
 
-	uint32_t getWidth() {
+	uint32_t getWidth() const {
 		return width;
 	}
-	uint32_t getHeight() {
+	uint32_t getHeight() const {
 		return height;
 	}
-	float getCellSize() {
+	float getCellSize() const {
 		return cellSize;
 	}
-	float getDt() {
+	float getDt() const {
 		return dt;
 	}
 
@@ -107,7 +107,7 @@ public:
 		return circles.size();
 	}
 
-	bool inBoarder(sf::Vector2f pos) {
+	bool inBoarder(sf::Vector2f pos) const {
 		float buffer = boarderBuffer * cellSize - radius;
 		
 		return (pos.x - buffer >= 0 && pos.y - buffer >= 0 && pos.x + buffer < width * cellSize && pos.y + buffer < height * cellSize);
@@ -301,7 +301,7 @@ private:
 	sf::Vector2f g = { 0, 500.0f };
 	std::vector<Circle*> circles;
 	std::vector<Link*> constraints;
-	sf::VertexArray objectVA { sf::Quads, 1000000};
+	sf::VertexArray objectVA { sf::Quads, 500000};
 	sf::VertexArray boaderVA { sf::LineStrip, 5 };
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> gridProcessingFunction;
 	std::function<void(uint32_t startIndex, uint32_t endIndex)> elementProcessingFunction;

@@ -11,11 +11,11 @@
 
 int main(int argc, char* argv[]) {
     const uint32_t width = 600;
-    const uint32_t height = 200;
+    const uint32_t height = 1800;
     const uint32_t depth = 6;
-    const uint32_t cellSize = 3;
+    const uint32_t cellSize = 30;
     const float dt = 0.001f;
-    const uint32_t subSteps = 8;
+    const uint32_t subSteps = 4;
     const uint32_t screenWidth = 1980 / 2;
     const uint32_t screenHeight = 1080 / 2;
     const uint32_t frameLimit = 60;
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
 
     system.makeRope(100, 100, 50, 1.0, sf::Color::Red);
     system.makeRigidBody(200, 200, 50, 30, 1.0, sf::Color::Cyan);
-    Solver solver(&system, &window);
+    Solver solver(&system, &grid, &window);
 
     //Circle c({ 100,20 }, { 0,0 });
     //grid.addElementToGrid(&c);
@@ -97,15 +97,7 @@ int main(int argc, char* argv[]) {
 
         
         
-        if (grid.size() < 100000 && !system.isPaused()) {
-            float pos = static_cast<float>(width * cellSize) / 2;
-
-            for (uint32_t i = 0; i < 100; i++) {
-                Circle c({ pos, 20 }, { 0.3, 1 }, sf::Color::White);
-                system.addElement(c);
-                pos += cellSize;
-            }
-        }
+        
         
         window.display();
     }

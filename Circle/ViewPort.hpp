@@ -47,7 +47,7 @@ public:
 		
 	}
 
-	float getScale() {
+	float getScale() const {
 		return scale;
 	}
 

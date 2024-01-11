@@ -37,7 +37,7 @@ public:
 		grid->addElementToGrid(&c);
 	}
 	
-	bool isPaused() {
+	bool isPaused() const {
 		return pause;
 	}
 
@@ -95,8 +95,7 @@ public:
 		makeRope(pos.x, pos.y, length, rigigity, color);
 	}
 
-	void makeRect(const uint32_t width, const uint32_t height,sf::Vector2f pos, sf::Color color) {
-		Circle c_({ pos, { 0,0 } , color });
+	void makeRect(const uint32_t width, const uint32_t height,sf::Vector2f pos, Circle c_) {
 		for (uint32_t i = 0; i < width; i++) {
 			for (uint32_t j = 0; j < height; j++) {
 				if (grid->inBoarder(c_.pos) && grid->getLength(grid->getGridPos(c_.pos)) == 0) {
@@ -207,15 +206,15 @@ public:
 				break;
 			case 1:
 				if (true) {
-					//Circle c({ gridPos * grid->getCellSize(), {0,0} });
-					//c.holdPos = true;
-					makeRect(rectSize, rectSize, gridPos * grid->getCellSize(), sf::Color::White);
+					Circle c({ gridPos * grid->getCellSize(), {0,0} });
+					c.holdPos = true;
+					makeRect(rectSize, rectSize, gridPos * grid->getCellSize(), c);
 				}
 				break;
 			case 2:
 				if (true) {
-					//Circle c({ gridPos * grid->getCellSize(), {0.1f,1}});
-					makeRect(rectSize, rectSize, gridPos * grid->getCellSize(), sf::Color::White);
+					Circle c({ gridPos * grid->getCellSize(), {0.1f,1}});
+					makeRect(rectSize, rectSize, gridPos * grid->getCellSize(), c);
 				}
 			}
 		}
